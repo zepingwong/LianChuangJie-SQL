@@ -1,0 +1,1 @@
+UPDATE T_OUSI SET U_PasswordWeb = '$2a$10$Emo4gHNDzwXoSLrDiuyujuSSwfpiQcNzF5YnKSwTD8Sq82LsB5J2y' WHERE U_PasswordWeb IS NOT NULL
