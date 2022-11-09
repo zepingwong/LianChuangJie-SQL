@@ -41,22 +41,6 @@ SELECT
 	SUM(Quantity) AS SumQuantity, /*近一年采购总数*/
 	ABS(SUM(Quantity * SPriceAFVAT) * SExchangeRate.Rate) AS SumMoney /*销售总额*/
 FROM U_OIVL
-LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
-WHERE U_OIVL.BaseName = N'交货单'
-AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
-GROUP BY
-	SExchangeRate.Rate,
-    U_OIVL.Brand,
-    U_OIVL.ItemName
-ORDER BY SumMoney DESC
-
-/*销售订单*/
-SELECT
-	ItemName AS Modle,
-	Brand,
-	SUM(Quantity) AS SumQuantity, /*近一年采购总数*/
-	ABS(SUM(Quantity * SPriceAFVAT) * SExchangeRate.Rate) AS SumMoney /*销售总额*/
-FROM U_OIVL
 LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
 WHERE U_OIVL.BaseName = N'交货单'
 AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12

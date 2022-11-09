@@ -21,7 +21,8 @@ FROM (
 /*10.销售总额*/
 SELECT
     TT.*,
-    ROW_NUMBER() OVER(ORDER BY TT.SumMoney DESC) as SumSaleMoneyRank /*近一年采购总额排名*/
+    ROW_NUMBER() OVER(ORDER BY TT.SumSaleMoney DESC) as SumSaleMoneyRank, /*近一年销售总额排名*/
+    ROW_NUMBER() OVER(ORDER BY TT._SumSaleMoney DESC) as _SumSaleMoneyRank /*近一年加权销售总额排名*/
 FROM (
     SELECT
         T.Brand,
@@ -35,7 +36,14 @@ FROM (
             ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) +
             ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) +
             ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0)
-        ) AS SumMoney
+        ) AS SumSaleMoney,
+        (
+            ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) * 0.1968 +
+            ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) * 0.1217 +
+            ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) * 0.1217 +
+            ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0) * 0.0622
+        ) AS _SumSaleMoney
+
     FROM (
         SELECT
             1 AS DocEntry,
@@ -110,6 +118,7 @@ FROM (
         FROM U_OIVL
         LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
         WHERE BaseName = N'交货单'
+        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) > 2
         AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
         GROUP BY
             ExchangeRate.Rate,

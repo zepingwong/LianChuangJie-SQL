@@ -21,11 +21,10 @@ FROM (
 
 /*11.采购总额*/
 SELECT
-T.Brand,
-T.Modle,
-ISNULL(Purchase.SumMoney, 0) AS SumPurchaseMoney, /*近一年采购总额*/
-ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank /*近一年采购总额排名*/
-
+    T.Brand,
+    T.Modle,
+    ISNULL(Purchase.SumMoney, 0) AS SumPurchaseMoney, /*近一年采购总额*/
+    ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank /*近一年采购总额排名*/
 FROM (
     SELECT
         1 AS DocEntry,
@@ -45,11 +44,14 @@ LEFT JOIN (
 		Brand,
 		SUM(Quantity) AS SumQuantity, /*近一年采购总数*/
 		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate AS SumMoney, /*近一年采购总额*/
-		SUM(Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-		SUM(Quantity * (U_OIVL.SPriceAFVAT - U_OIVL.PPriceAFVAT))/SUM(Quantity) AS AverageProfit,
+		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
+		SUM(
+		    Quantity * (U_OIVL.SPriceAFVAT * SExchangeRate.Rate - U_OIVL.PPriceAFVAT * PExchangeRate.Rate)
+		) / SUM(Quantity) AS AverageProfit,
 		COUNT(*) AS PurchaseFrequency
 	FROM U_OIVL
 	LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
+	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
 	WHERE U_OIVL.BaseName = N'采购入库'
 	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
 	GROUP BY

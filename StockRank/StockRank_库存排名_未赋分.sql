@@ -21,7 +21,7 @@ FROM (
 SELECT
 T.Modle,
 T.Brand,
-/*1.询价频次*/
+/*01.询价频次*/
 ISNULL(_FirstEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyFirst1, /*贸易商类型客户距今1个月询价频次*/
 ISNULL(_FirstEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyFirst2, /*终端类型客户距今1个月询价频次*/
 (ISNULL(_FirstEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencyFirst, /*距今1个月询价频次*/
@@ -35,7 +35,7 @@ ISNULL(_ForthEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyForth1, /*贸易�
 ISNULL(_ForthEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyForth2, /*终端类型客户距今4-12个月询价频次*/
 (ISNULL(_ForthEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencyForth, /*距今4-12个月询价频次*/
 
-/*2.询价客户数*/
+/*02.询价客户数*/
 ISNULL(_FirstEnquiry1.InquiryCustomers, 0) AS InquiryCustomersFirst1, /*贸易商类型客户距今1个月询价客户数*/
 ISNULL(_FirstEnquiry2.InquiryCustomers, 0) AS InquiryCustomersFirst2, /*终端类型客户距今1个月询价客户数*/
 (ISNULL(_FirstEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersFirst, /*距今1个月询价客户数*/
@@ -49,37 +49,39 @@ ISNULL(_ForthEnquiry1.InquiryCustomers, 0) AS InquiryCustomersForth1, /*贸易�
 ISNULL(_ForthEnquiry2.InquiryCustomers, 0) AS InquiryCustomersForth2, /*终端类型客户距今4个月询价客户数*/
 (ISNULL(_ForthEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersForth, /*距今4个月询价客户数*/
 
-/*3.订单客户数量*/
+/*03.订单客户数量*/
 ISNULL(_FirstOrderCustomers.OrderCustomers, 0) AS OrderCustomersFirst, /*距今1个月订单客户数量*/
 ISNULL(_SecondOrderCustomers.OrderCustomers, 0) AS OrderCustomersSecond, /*距今2个月订单客户数量*/
 ISNULL(_ThirdOrderCustomers.OrderCustomers, 0) AS OrderCustomersThird, /*距今3个月订单客户数量*/
 ISNULL(_ForthOrderCustomers.OrderCustomers, 0) AS OrderCustomersForth, /*距今4-12个月订单客户数量*/
 
-/*4.交货单频次*/
+/*04.交货单频次*/
 ISNULL(_FirstDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyFirst, /*距今1个月交货单频次*/
 ISNULL(_SecondDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencySecond, /*距今2个月交货单频次*/
 ISNULL(_ThirdDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyThird, /*距今3个月交货单频次*/
 ISNULL(_ForthDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyForth, /*距今4-12个月交货单频次*/
 
-/*5.销售数量*/
+/*05.销售数量*/
 ISNULL(ABS(_FirstDeliveryFrequency.Quantity), 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
 ISNULL(ABS(_SecondDeliveryFrequency.Quantity), 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
 ISNULL(ABS(_ThirdDeliveryFrequency.Quantity), 0) AS DeliveryQuantityThird, /*距今3个月销售数量*/
 ISNULL(ABS(_ForthDeliveryFrequency.Quantity), 0) AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
 
-/*6.平均利润率*/ /*******************************************************写错了**********************************************************/
+/*06.平均利润率*/ /*******************************************************写错了**********************************************************/
 ISNULL(Purchase.AverageProfit, 0) AS AverageProfit, /*近一年平均利润率*/
 /************************************************************************写错了**********************************************************/
 
-/*7.采购价格*/ /*******************赋分方式是采购价格*******************/
+/*07.采购价格*/
 ISNULL(Purchase.AveragePPriceAFVAT, 0) AS AveragePPriceAFVAT,
-/**********************************赋分方式是采购价格*******************/
+ROW_NUMBER() OVER(ORDER BY Purchase.AveragePPriceAFVAT DESC) as AveragePPriceAFVATRank, /*近一年采购价格排名*/
 
-/*8.采购数量*/
+/*08.采购数量*/
 ISNULL(Purchase.SumQuantity, 0) AS SumPurchaseQuantity, /*近一年采购总数*/
+ROW_NUMBER() OVER(ORDER BY Purchase.SumQuantity DESC) as SumPurchaseQuantityRank, /*近一年采购数量排名*/
 
-/*9.采购频次*/
+/*09.采购频次*/
 ISNULL(Purchase.PurchaseFrequency, 0) AS PurchaseFrequency, /*近一年采购频次总数*/
+ROW_NUMBER() OVER(ORDER BY Purchase.PurchaseFrequency DESC) as PurchaseFrequencyRank, /*近一年采购频次排名*/
 
 /*10.销售额*/ /***************************汇率使用当前最近一次汇率**************************/
 ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) AS SumSaleMoneyFirst, /*距今1个月销售总额*/
@@ -355,11 +357,14 @@ LEFT JOIN (
 		Brand,
 		SUM(Quantity) AS SumQuantity, /*近一年采购总数*/
 		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate AS SumMoney, /*近一年采购总额*/
-		SUM(Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-		SUM(Quantity * (U_OIVL.SPriceAFVAT - U_OIVL.PPriceAFVAT))/SUM(Quantity) AS AverageProfit,
+		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
+		SUM(
+		    Quantity * (U_OIVL.SPriceAFVAT * SExchangeRate.Rate - U_OIVL.PPriceAFVAT * PExchangeRate.Rate)
+		) / SUM(Quantity) AS AverageProfit,
 		COUNT(*) AS PurchaseFrequency
 	FROM U_OIVL
 	LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
+	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
 	WHERE U_OIVL.BaseName = N'采购入库'
 	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
 	GROUP BY
