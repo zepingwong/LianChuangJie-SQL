@@ -58,10 +58,10 @@ SELECT
 	ABS(SUM(Quantity * SPriceAFVAT) * SExchangeRate.Rate) AS SumMoney /*销售总额*/
 FROM U_OIVL
 LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
-WHERE BaseName = N'交货单'
+WHERE U_OIVL.BaseName = N'交货单'
 AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
 GROUP BY
-    SExchangeRate.Rate,
+	SExchangeRate.Rate,
     U_OIVL.Brand,
     U_OIVL.ItemName
 ORDER BY SumMoney DESC
