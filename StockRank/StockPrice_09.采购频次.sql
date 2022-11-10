@@ -40,24 +40,31 @@ FROM (
 /*采购数量、采购价格、采购频次、平均利润率*/
 LEFT JOIN (
 	SELECT
-		ItemName AS Modle,
-		Brand,
-		SUM(Quantity) AS SumQuantity, /*近一年采购总数*/
-		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate AS SumMoney, /*近一年采购总额*/
-		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
+		OIVL.ItemName AS Modle,
+		OIVL.Brand,
+		SUM(OIVL.Quantity) AS SumQuantity, /*近一年采购总数*/
+		SUM(OIVL.Quantity * PPriceAFVAT) AS SumMoney, /*近一年采购总额*/
+		SUM(OIVL.Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
 		SUM(
-		    Quantity * (U_OIVL.SPriceAFVAT * SExchangeRate.Rate - U_OIVL.PPriceAFVAT * PExchangeRate.Rate)
-		) / SUM(Quantity) AS AverageProfit,
+		    OIVL.Quantity * (OIVL.SPriceAFVAT - OIVL.PPriceAFVAT)
+		) / SUM(OIVL.Quantity) AS AverageProfit,
 		COUNT(*) AS PurchaseFrequency
-	FROM U_OIVL
-	LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
-	WHERE U_OIVL.BaseName = N'采购入库'
-	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
+	FROM (
+        SELECT
+            U_OIVL.ItemName,
+            U_OIVL.Quantity,
+            U_OIVL.Brand,
+            U_OIVL.SPriceAFVAT * SExchangeRate.Rate AS SPriceAFVAT,
+            U_OIVL.PPriceAFVAT * PExchangeRate.Rate AS PPriceAFVAT
+        FROM U_OIVL
+        LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
+        LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
+        WHERE U_OIVL.BaseName = N'采购入库'
+        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
+    ) OIVL
 	GROUP BY
-	    PExchangeRate.Rate,
-        U_OIVL.Brand,
-        U_OIVL.ItemName
+        OIVL.Brand,
+        OIVL.ItemName
 ) Purchase ON Purchase.Brand = T.Brand AND Purchase.Modle = T.Modle
 
 DROP TABLE #ExchangeRate
