@@ -1,0 +1,8 @@
+SELECT
+    ROW_NUMBER() OVER ( ORDER BY U_ICIN1.Modle ) AS LineNum,
+    U_ICIN1.Modle,
+    U_ICIN1.Brand
+FROM U_ICIN1
+GROUP BY
+    U_ICIN1.Modle,
+    U_ICIN1.Brand

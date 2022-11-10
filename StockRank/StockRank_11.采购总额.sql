@@ -21,10 +21,11 @@ FROM (
 
 /*11.采购总额*/
 SELECT
-    T.Brand,
-    T.Modle,
-    ISNULL(Purchase.SumMoney, 0) AS SumPurchaseMoney, /*近一年采购总额*/
-    ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank /*近一年采购总额排名*/
+    COUNT(*)
+--     T.Brand,
+--     T.Modle,
+--     ISNULL(Purchase.SumMoney, 0) AS SumPurchaseMoney, /*近一年采购总额*/
+--     ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank /*近一年采购总额排名*/
 FROM (
     SELECT
         1 AS DocEntry,
@@ -51,7 +52,7 @@ LEFT JOIN (
 		COUNT(*) AS PurchaseFrequency
 	FROM U_OIVL
 	LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
+	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
 	WHERE U_OIVL.BaseName = N'采购入库'
 	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
 	GROUP BY

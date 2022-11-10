@@ -359,12 +359,11 @@ LEFT JOIN (
 		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate AS SumMoney, /*近一年采购总额*/
 		SUM(Quantity * PPriceAFVAT) * PExchangeRate.Rate / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
 		SUM(
-		    Quantity * (U_OIVL.SPriceAFVAT * SExchangeRate.Rate - U_OIVL.PPriceAFVAT * PExchangeRate.Rate)
+		    Quantity * (U_OIVL.SPriceAFVAT - U_OIVL.PPriceAFVAT )
 		) / SUM(Quantity) AS AverageProfit,
 		COUNT(*) AS PurchaseFrequency
 	FROM U_OIVL
 	LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-	LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.PCurrency
 	WHERE U_OIVL.BaseName = N'采购入库'
 	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
 	GROUP BY
@@ -372,3 +371,5 @@ LEFT JOIN (
         U_OIVL.Brand,
         U_OIVL.ItemName
 ) Purchase ON Purchase.Brand = T.Brand AND Purchase.Modle = T.Modle
+
+DROP TABLE #ExchangeRate
