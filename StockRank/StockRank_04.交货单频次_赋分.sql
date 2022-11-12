@@ -1,8 +1,8 @@
 DECLARE @Total INT
+SELECT @Total = COUNT(*) FROM U_StockRank;
+/*交货单频次赋分*/
 DECLARE @MIN_DeliveryFrequency INT
 DECLARE @MAX_DeliveryFrequency INT
-SELECT @Total = COUNT(*) FROM U_StockRank;
-
 /*排名前0.1%*/
 SELECT
     @MIN_DeliveryFrequency = MIN(DeliveryFrequency),

@@ -1,3 +1,4 @@
+/*采购价格赋分*/
 /*采购价格>17000, 赋1分*/
 UPDATE U_StockRank
 SET AveragePPriceAFVATScore = 1

@@ -1,8 +1,8 @@
 DECLARE @Total INT
+SELECT @Total = COUNT(*) FROM U_StockRank;
+/*销售数量赋分*/
 DECLARE @MIN_DeliveryQuantity INT
 DECLARE @MAX_DeliveryQuantity INT
-SELECT @Total = COUNT(*) FROM U_StockRank;
-
 /*排名前0.1%*/
 SELECT
     @MIN_DeliveryQuantity = MIN(DeliveryQuantity),

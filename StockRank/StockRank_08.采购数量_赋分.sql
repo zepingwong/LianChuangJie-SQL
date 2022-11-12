@@ -1,8 +1,9 @@
 DECLARE @Total INT
-DECLARE @MIN_SumPurchaseQuantity INT
-DECLARE @MAX_SumPurchaseQuantity INT
 SELECT @Total = COUNT(*) FROM U_StockRank;
 
+/*采购数量赋分*/
+DECLARE @MIN_SumPurchaseQuantity INT
+DECLARE @MAX_SumPurchaseQuantity INT
 /*前0.781%*/
 
 SELECT

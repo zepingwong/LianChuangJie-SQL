@@ -1,3 +1,4 @@
+/*订单客户数赋分*/
 DECLARE @MIN_OrderCustomers INT
 DECLARE @MAX_OrderCustomers INT
 

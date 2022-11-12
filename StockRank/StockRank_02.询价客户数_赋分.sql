@@ -1,3 +1,4 @@
+/*询价客户数赋分*/
 DECLARE @MIN_InquiryFrequency INT
 DECLARE @MAX_InquiryFrequency INT
 

@@ -1,8 +1,9 @@
 DECLARE @Total INT
-DECLARE @MIN_PurchaseFrequency INT
-DECLARE @MAX_PurchaseFrequency INT
 SELECT @Total = COUNT(*) FROM U_StockRank;
 
+/*采购频次赋分*/
+DECLARE @MIN_PurchaseFrequency INT
+DECLARE @MAX_PurchaseFrequency INT
 /*排名前0.1%*/
 SELECT
     @MIN_PurchaseFrequency = MIN(PurchaseFrequency),

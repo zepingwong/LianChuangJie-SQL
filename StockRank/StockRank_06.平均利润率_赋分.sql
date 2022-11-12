@@ -1,3 +1,4 @@
+/*平均利润率赋分*/
 DECLARE @MAX_AverageProfit DECIMAL
 DECLARE @MIN_AverageProfit DECIMAL
 

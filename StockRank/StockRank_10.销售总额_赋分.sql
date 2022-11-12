@@ -1,8 +1,9 @@
 DECLARE @Total INT
-DECLARE @MIN_SumSaleMoney INT
-DECLARE @MAX_SumSaleMoney INT
 SELECT @Total = COUNT(*) FROM U_StockRank;
 
+/*销售总额赋分*/
+DECLARE @MIN_SumSaleMoney INT
+DECLARE @MAX_SumSaleMoney INT
 /*排名前0.1%*/
 SELECT
     @MIN_SumSaleMoney = MIN(SumSaleMoney),
