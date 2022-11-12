@@ -20,10 +20,10 @@ FROM (
 
 
 SELECT
+--     COUNT(*)
     T.Brand,
     T.Modle,
-    ISNULL(Purchase.AverageProfit, 0) AS AverageProfit, /*近一年平均利润率*/
-    ROW_NUMBER() OVER(ORDER BY Purchase.AverageProfit DESC) as AverageProfitRank /*近一年平均利润率排名*/
+    IIF(Purchase.SumMoney IS NOT NULL AND Purchase.SumMoney != 0, ISNULL(Sale.SumMoney, 0) / Purchase.SumMoney -1, NULL) AS AverageProfit /*近一年平均利润率*/
 FROM (
     SELECT
         1 AS DocEntry,
@@ -36,7 +36,7 @@ FROM (
         U_ICIN1.Modle,
         U_ICIN1.Brand
 ) T
-/*采购数量、采购价格、采购频次、平均利润率*/
+/*采购数量、采购价格、采购频次*/
 LEFT JOIN (
 	SELECT
 		OIVL.ItemName AS Modle,
@@ -44,20 +44,14 @@ LEFT JOIN (
 		SUM(OIVL.Quantity) AS SumQuantity, /*近一年采购总数*/
 		SUM(OIVL.Quantity * PPriceAFVAT) AS SumMoney, /*近一年采购总额*/
 		SUM(OIVL.Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-		SUM(
-		    OIVL.Quantity * (OIVL.SPriceAFVAT - OIVL.PPriceAFVAT)
-		) / SUM(OIVL.Quantity) AS AverageProfit,
-		COUNT(*) AS PurchaseFrequency
+		COUNT(*) AS PurchaseFrequency /*近一年采购频次*/
 	FROM (
         SELECT
             U_OIVL.ItemName,
             U_OIVL.Quantity,
             U_OIVL.Brand,
-            U_OIVL.SPriceAFVAT * SExchangeRate.Rate AS SPriceAFVAT,
-            U_OIVL.PPriceAFVAT * PExchangeRate.Rate AS PPriceAFVAT
+            U_OIVL.PPriceAFVAT
         FROM U_OIVL
-        LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-        LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
         WHERE U_OIVL.BaseName = N'采购入库'
         AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
     ) OIVL
@@ -65,6 +59,24 @@ LEFT JOIN (
         OIVL.Brand,
         OIVL.ItemName
 ) Purchase ON Purchase.Brand = T.Brand AND Purchase.Modle = T.Modle
-ORDER BY Purchase.AverageProfit DESC
-
+LEFT JOIN (
+    	SELECT
+		OIVL.ItemName AS Modle,
+		OIVL.Brand,
+		SUM(OIVL.Quantity * SPriceAFVAT) AS SumMoney /*近一年销售总额*/
+	FROM (
+        SELECT
+            U_OIVL.ItemName,
+            U_OIVL.Quantity,
+            U_OIVL.Brand,
+            U_OIVL.SPriceAFVAT * T_ORTT.Rate AS SPriceAFVAT
+        FROM U_OIVL
+        LEFT JOIN T_ORTT ON T_ORTT.Currency = U_OIVL.SCurrency
+        WHERE U_OIVL.BaseName = N'交货单'
+        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
+    ) OIVL
+	GROUP BY
+        OIVL.Brand,
+        OIVL.ItemName
+) Sale ON Sale.Brand = T.Brand AND Sale.Modle = T.Modle
 DROP TABLE #ExchangeRate

@@ -54,22 +54,49 @@ ISNULL(_FirstOrderCustomers.OrderCustomers, 0) AS OrderCustomersFirst, /*距今1
 ISNULL(_SecondOrderCustomers.OrderCustomers, 0) AS OrderCustomersSecond, /*距今2个月订单客户数量*/
 ISNULL(_ThirdOrderCustomers.OrderCustomers, 0) AS OrderCustomersThird, /*距今3个月订单客户数量*/
 ISNULL(_ForthOrderCustomers.OrderCustomers, 0) AS OrderCustomersForth, /*距今4-12个月订单客户数量*/
+(
+    ISNULL(_FirstDeliveryFrequency.DeliveryFrequency, 0) * 0.1968 +
+    ISNULL(_SecondDeliveryFrequency.DeliveryFrequency, 0) * 0.1217 +
+    ISNULL(_ThirdDeliveryFrequency.DeliveryFrequency, 0) * 0.1217 +
+    ISNULL(_ForthDeliveryFrequency.DeliveryFrequency, 0) * 0.0622
+) AS DeliveryFrequency, /*近一年加权订单客户数量*/
 
 /*04.交货单频次*/
 ISNULL(_FirstDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyFirst, /*距今1个月交货单频次*/
 ISNULL(_SecondDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencySecond, /*距今2个月交货单频次*/
 ISNULL(_ThirdDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyThird, /*距今3个月交货单频次*/
 ISNULL(_ForthDeliveryFrequency.DeliveryFrequency, 0) AS DeliveryFrequencyForth, /*距今4-12个月交货单频次*/
+(
+    ISNULL(_FirstDeliveryFrequency.DeliveryFrequency, 0) * 0.1968 +
+    ISNULL(_SecondDeliveryFrequency.DeliveryFrequency, 0) * 0.1217 +
+    ISNULL(_ThirdDeliveryFrequency.DeliveryFrequency, 0) * 0.1217 +
+    ISNULL(_ForthDeliveryFrequency.DeliveryFrequency, 0) * 0.0622
+) AS DeliveryFrequency, /*近一年订单总数*/
 
 /*05.销售数量*/
-ISNULL(ABS(_FirstDeliveryFrequency.Quantity), 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
-ISNULL(ABS(_SecondDeliveryFrequency.Quantity), 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
-ISNULL(ABS(_ThirdDeliveryFrequency.Quantity), 0) AS DeliveryQuantityThird, /*距今3个月销售数量*/
-ISNULL(ABS(_ForthDeliveryFrequency.Quantity), 0) AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
+ISNULL(_FirstDeliveryFrequency.Quantity, 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
+ISNULL(_SecondDeliveryFrequency.Quantity, 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
+ISNULL(_ThirdDeliveryFrequency.Quantity, 0) AS DeliveryQuantityThird, /*距今3个月销售数量*/
+ISNULL(_ForthDeliveryFrequency.Quantity, 0) AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
+(
+    ISNULL(_FirstDeliveryFrequency.Quantity, 0) * 0.1968 +
+    ISNULL(_SecondDeliveryFrequency.Quantity, 0) * 0.1217 +
+    ISNULL(_ThirdDeliveryFrequency.Quantity, 0) * 0.1217 +
+    ISNULL(_ForthDeliveryFrequency.Quantity, 0) * 0.0622
+) AS DeliveryQuantity, /*近一年销售总数*/
 
-/*06.平均利润率*/ /*******************************************************写错了**********************************************************/
-ISNULL(Purchase.AverageProfit, 0) AS AverageProfit, /*近一年平均利润率*/
-/************************************************************************写错了**********************************************************/
+/*06.平均利润率*/
+IIF(
+    Purchase.SumMoney IS NOT NULL AND Purchase.SumMoney != 0,
+    (
+        ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) + /*距今1个月销售总额*/
+        ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) + /*距今2个月销售总额*/
+        ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) + /*距今3个月销售总额*/
+        ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0) - /*距今4-12个销售总额*/
+        ISNULL(Purchase.SumMoney, 0) /*近一年采购总额*/
+    ) / Purchase.SumMoney,
+    0
+) AS AverageProfit /*近一年平均利润率*/,
 
 /*07.采购价格*/
 ISNULL(Purchase.AveragePPriceAFVAT, 0) AS AveragePPriceAFVAT,
@@ -286,71 +313,99 @@ LEFT JOIN (
 
 /*距今1个月交货单频次*/
 LEFT JOIN (
-	SELECT
-		COUNT(*) AS DeliveryFrequency,
-		ItemName AS Modle, Brand,
-		SUM(Quantity) AS Quantity, /*销售数量*/
-		ABS(SUM(Quantity * SPriceAFVAT) * ExchangeRate.Rate) AS SumSaleMoney /*销售总额*/
-	FROM U_OIVL
-	LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-	WHERE BaseName = N'交货单'
-	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 0
-	GROUP BY
-	    ExchangeRate.Rate,
-        U_OIVL.Brand,
-        U_OIVL.ItemName
+        SELECT
+            COUNT(*) AS DeliveryFrequency,
+            OIVL.Brand,
+            OIVL.ItemName AS Modle,
+            SUM(Quantity) AS Quantity, /*销售数量*/
+            ABS(SUM(Quantity * SPriceAFVAT)) AS SumSaleMoney /*销售总额*/
+        FROM (
+            SELECT
+                U_OIVL.ItemName,
+                U_OIVL.Brand,
+                ABS(U_OIVL.Quantity) AS Quantity,
+                U_OIVL.SPriceAFVAT * ExchangeRate.Rate AS SPriceAFVAT
+            FROM U_OIVL
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
+            WHERE BaseName = N'交货单'
+            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 0
+        ) OIVL
+        GROUP BY
+            OIVL.Brand,
+            OIVL.ItemName
 ) _FirstDeliveryFrequency ON _FirstDeliveryFrequency.Brand = T.Brand AND _FirstDeliveryFrequency.Modle = T.Modle
 /*距今2个月交货单频次*/
 LEFT JOIN (
-	SELECT
-		COUNT(*) AS DeliveryFrequency,
-		ItemName AS Modle, Brand,
-		SUM(Quantity) AS Quantity, /*销售数量*/
-		ABS(SUM(Quantity * SPriceAFVAT) * ExchangeRate.Rate) AS SumSaleMoney /*销售总额*/
-	FROM U_OIVL
-	LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-	WHERE BaseName = N'交货单'
-	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 1
-	GROUP BY
-	    ExchangeRate.Rate,
-        U_OIVL.Brand,
-        U_OIVL.ItemName
+        SELECT
+            COUNT(*) AS DeliveryFrequency,
+            OIVL.Brand,
+            OIVL.ItemName AS Modle,
+            SUM(Quantity) AS Quantity, /*销售数量*/
+            ABS(SUM(Quantity * SPriceAFVAT)) AS SumSaleMoney /*销售总额*/
+        FROM (
+            SELECT
+                U_OIVL.ItemName,
+                U_OIVL.Brand,
+                ABS(U_OIVL.Quantity) AS Quantity,
+                U_OIVL.SPriceAFVAT * ExchangeRate.Rate AS SPriceAFVAT
+            FROM U_OIVL
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
+            WHERE BaseName = N'交货单'
+            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 1
+        ) OIVL
+        GROUP BY
+            OIVL.Brand,
+            OIVL.ItemName
 ) _SecondDeliveryFrequency ON _SecondDeliveryFrequency.Brand = T.Brand AND _SecondDeliveryFrequency.Modle = T.Modle
 /*距今3个月交货单频次*/
 LEFT JOIN (
-	SELECT
-		COUNT(*) AS DeliveryFrequency,
-		ItemName AS Modle, Brand,
-		SUM(Quantity) AS Quantity, /*销售数量*/
-		ABS(SUM(Quantity * SPriceAFVAT) * ExchangeRate.Rate) AS SumSaleMoney /*销售总额*/
-	FROM U_OIVL
-	LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-	WHERE BaseName = N'交货单'
-	AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 2
-	GROUP BY
-	    ExchangeRate.Rate,
-        U_OIVL.Brand,
-        U_OIVL.ItemName
+        SELECT
+            COUNT(*) AS DeliveryFrequency,
+            OIVL.Brand,
+            OIVL.ItemName AS Modle,
+            SUM(Quantity) AS Quantity, /*销售数量*/
+            ABS(SUM(Quantity * SPriceAFVAT)) AS SumSaleMoney /*销售总额*/
+        FROM (
+            SELECT
+                U_OIVL.ItemName,
+                U_OIVL.Brand,
+                ABS(U_OIVL.Quantity) AS Quantity,
+                U_OIVL.SPriceAFVAT * ExchangeRate.Rate AS SPriceAFVAT
+            FROM U_OIVL
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
+            WHERE BaseName = N'交货单'
+            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 2
+        ) OIVL
+        GROUP BY
+            OIVL.Brand,
+            OIVL.ItemName
 ) _ThirdDeliveryFrequency ON _ThirdDeliveryFrequency.Brand = T.Brand AND _ThirdDeliveryFrequency.Modle = T.Modle
 /*距今4-12个月交货单频次*/
 LEFT JOIN (
-	SELECT
-		COUNT(*) AS DeliveryFrequency,
-		ItemName AS Modle, Brand,
-		SUM(Quantity) AS Quantity, /*销售数量*/
-		ABS(SUM(Quantity * SPriceAFVAT) * ExchangeRate.Rate) AS SumSaleMoney /*销售总额*/
-	FROM U_OIVL
-	LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-	WHERE BaseName = N'交货单'
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) > 2
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
-	GROUP BY
-	    ExchangeRate.Rate,
-        U_OIVL.Brand,
-        U_OIVL.ItemName
+        SELECT
+            COUNT(*) AS DeliveryFrequency,
+            OIVL.Brand,
+            OIVL.ItemName AS Modle,
+            SUM(Quantity) AS Quantity, /*销售数量*/
+            ABS(SUM(Quantity * SPriceAFVAT)) AS SumSaleMoney /*销售总额*/
+        FROM (
+            SELECT
+                U_OIVL.ItemName,
+                U_OIVL.Brand,
+                ABS(U_OIVL.Quantity) AS Quantity,
+                U_OIVL.SPriceAFVAT * ExchangeRate.Rate AS SPriceAFVAT
+            FROM U_OIVL
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
+            WHERE BaseName = N'交货单'
+            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) > 2
+            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
+        ) OIVL
+        GROUP BY
+            OIVL.Brand,
+            OIVL.ItemName
 ) _ForthDeliveryFrequency ON _ForthDeliveryFrequency.Brand = T.Brand AND _ForthDeliveryFrequency.Modle = T.Modle
 
-/*采购数量、采购价格、采购频次、平均利润率*/
+/*采购数量、采购价格、采购频次*/
 LEFT JOIN (
 	SELECT
 		OIVL.ItemName AS Modle,
@@ -358,20 +413,14 @@ LEFT JOIN (
 		SUM(OIVL.Quantity) AS SumQuantity, /*近一年采购总数*/
 		SUM(OIVL.Quantity * PPriceAFVAT) AS SumMoney, /*近一年采购总额*/
 		SUM(OIVL.Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-		SUM(
-		    OIVL.Quantity * (OIVL.SPriceAFVAT - OIVL.PPriceAFVAT)
-		) / SUM(OIVL.Quantity) AS AverageProfit,
-		COUNT(*) AS PurchaseFrequency
+		COUNT(*) AS PurchaseFrequency /*近一年采购频次*/
 	FROM (
         SELECT
             U_OIVL.ItemName,
             U_OIVL.Quantity,
             U_OIVL.Brand,
-            U_OIVL.SPriceAFVAT * SExchangeRate.Rate AS SPriceAFVAT,
-            U_OIVL.PPriceAFVAT * PExchangeRate.Rate AS PPriceAFVAT
+            U_OIVL.PPriceAFVAT
         FROM U_OIVL
-        LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-        LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
         WHERE U_OIVL.BaseName = N'采购入库'
         AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
     ) OIVL

@@ -21,6 +21,7 @@ FROM (
 /*08.采购数量*/
 /*近一年该品牌、型号的采购数量*/
 SELECT
+--     COUNT(*)
     T.Brand,
     T.Modle,
     ISNULL(Purchase.SumQuantity, 0) AS SumPurchaseQuantity,
@@ -37,7 +38,7 @@ FROM (
         U_ICIN1.Modle,
         U_ICIN1.Brand
 ) T
-/*采购数量、采购价格、采购频次、平均利润率*/
+/*采购数量、采购价格、采购频次*/
 LEFT JOIN (
 	SELECT
 		OIVL.ItemName AS Modle,
@@ -45,20 +46,14 @@ LEFT JOIN (
 		SUM(OIVL.Quantity) AS SumQuantity, /*近一年采购总数*/
 		SUM(OIVL.Quantity * PPriceAFVAT) AS SumMoney, /*近一年采购总额*/
 		SUM(OIVL.Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-		SUM(
-		    OIVL.Quantity * (OIVL.SPriceAFVAT - OIVL.PPriceAFVAT)
-		) / SUM(OIVL.Quantity) AS AverageProfit,
-		COUNT(*) AS PurchaseFrequency
+		COUNT(*) AS PurchaseFrequency /*近一年采购频次*/
 	FROM (
         SELECT
             U_OIVL.ItemName,
             U_OIVL.Quantity,
             U_OIVL.Brand,
-            U_OIVL.SPriceAFVAT * SExchangeRate.Rate AS SPriceAFVAT,
-            U_OIVL.PPriceAFVAT * PExchangeRate.Rate AS PPriceAFVAT
+            U_OIVL.PPriceAFVAT
         FROM U_OIVL
-        LEFT JOIN #ExchangeRate PExchangeRate ON PExchangeRate.Currency = U_OIVL.PCurrency
-        LEFT JOIN #ExchangeRate SExchangeRate ON SExchangeRate.Currency = U_OIVL.SCurrency
         WHERE U_OIVL.BaseName = N'采购入库'
         AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
     ) OIVL
