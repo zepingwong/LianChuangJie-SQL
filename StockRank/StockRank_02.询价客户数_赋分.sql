@@ -7,5 +7,8 @@ SELECT
 FROM U_StockRank
 
 UPDATE U_StockRank
-SET InquiryCustomersScore = (InquiryCustomers - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 9 + 1
-WHERE 1=1
+SET InquiryCustomersScore = IIF(
+    @MAX_InquiryFrequency != @MIN_InquiryFrequency,
+    (InquiryCustomers - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 9 + 1,
+    0
+)

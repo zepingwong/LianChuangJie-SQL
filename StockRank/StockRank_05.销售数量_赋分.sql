@@ -8,19 +8,27 @@ SELECT
     @MIN_DeliveryQuantity = MIN(DeliveryQuantity),
     @MAX_DeliveryQuantity = MAX(DeliveryQuantity)
 FROM U_StockRank
-WHERE DeliveryQuantityRank <= @Total * 0.001
+WHERE DeliveryQuantityRank <= @Total * 0.007
 
 UPDATE U_StockRank
-SET DeliveryQuantityScore = (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 8 + 2
-WHERE DeliveryQuantityRank <= @Total * 0.001
+SET DeliveryQuantityScore = IIF(
+    @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
+    (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 8 + 2,
+    0
+)
+WHERE DeliveryQuantityRank <= @Total * 0.007
 
 /*其余*/
 SELECT
     @MIN_DeliveryQuantity = MIN(DeliveryQuantity),
     @MAX_DeliveryQuantity = MAX(DeliveryQuantity)
 FROM U_StockRank
-WHERE DeliveryQuantityRank > @Total * (1- 0.001)
+WHERE DeliveryQuantityRank > @Total * (1- 0.007)
 
 UPDATE U_StockRank
-SET DeliveryQuantityScore = (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 0.99 + 1
-WHERE DeliveryQuantityRank > @Total * (1- 0.001)
+SET DeliveryQuantityScore = IIF(
+    @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
+    (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 7 + 1,
+    0
+)
+WHERE DeliveryQuantityRank > @Total * (1- 0.007)

@@ -11,7 +11,11 @@ FROM U_StockRank
 WHERE DeliveryFrequencyRank <= @Total * 0.001
 
 UPDATE U_StockRank
-SET DeliveryFrequencyScore = (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 8 + 2
+SET DeliveryFrequencyScore = IIF(
+    @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
+    (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 2 + 8,
+    0
+)
 WHERE DeliveryFrequencyRank <= @Total * 0.001
 
 /*其余*/
@@ -22,5 +26,9 @@ FROM U_StockRank
 WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
 
 UPDATE U_StockRank
-SET DeliveryFrequencyScore = (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 0.99 + 1
+SET DeliveryFrequencyScore = IIF(
+    @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
+    (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 7 + 1,
+    0
+)
 WHERE DeliveryFrequencyRank > @Total * (1- 0.001)

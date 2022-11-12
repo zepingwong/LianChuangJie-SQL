@@ -11,7 +11,11 @@ FROM U_StockRank
 WHERE PurchaseFrequencyRank <= @Total * 0.001
 
 UPDATE U_StockRank
-SET PurchaseFrequencyScore = (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 8 + 2
+SET PurchaseFrequencyScore = IIF(
+    @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
+    (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 8 + 2,
+    0
+)
 WHERE PurchaseFrequencyRank <= @Total * 0.001
 
 /*其余*/
@@ -22,5 +26,9 @@ FROM U_StockRank
 WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
 
 UPDATE U_StockRank
-SET PurchaseFrequencyScore = (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 0.99 + 1
+SET PurchaseFrequencyScore = IIF(
+    @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
+    (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 7 + 1,
+    0
+)
 WHERE PurchaseFrequencyRank > @Total * (1- 0.001)

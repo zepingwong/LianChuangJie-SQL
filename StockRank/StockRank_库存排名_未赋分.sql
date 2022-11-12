@@ -18,7 +18,7 @@ FROM (
         1.000000 AS 'Rate'
 ) T
 /*库存排名*/
-
+DROP TABLE U_StockRank
 SELECT
     -- COUNT(*)
     InitRank.InquiryFrequency, /*01.近一年加权询价频次*/
@@ -179,13 +179,15 @@ FROM (
     /*12.品牌得分*/
 
     FROM (
+        /*近一年询报价业务所涉及的品牌、型号*/
         SELECT
-            1 AS DocEntry,
             ROW_NUMBER ( ) OVER ( ORDER BY U_ICIN1.Modle ) AS LineNum,
             U_ICIN1.Modle,
             U_ICIN1.Brand
         FROM
             U_ICIN1
+        LEFT JOIN T_ICIN ON U_ICIN1.DocEntry = T_ICIN.DocEntry
+        WHERE DATEDIFF(MONTH ,T_ICIN.InquiryDate, GETDATE( )) < 12
         GROUP BY
             U_ICIN1.Modle,
             U_ICIN1.Brand
@@ -196,7 +198,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -212,7 +214,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -230,7 +232,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -246,7 +248,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -263,7 +265,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -279,7 +281,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -296,7 +298,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
@@ -313,7 +315,7 @@ FROM (
         U_ICIN1.Brand,
         U_ICIN1.Modle,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
-        COUNT ( T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
+        COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
         U_ICIN1
         LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
