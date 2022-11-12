@@ -1,25 +1,24 @@
 /*01.询价频次*/
-SELECT
-    T.Modle,
-    T.Brand,
-    ISNULL(_FirstEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyFirst1, /*贸易商类型客户距今1个月询价频次*/
-    ISNULL(_FirstEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyFirst2, /*终端类型客户距今1个月询价频次*/
-    (ISNULL(_FirstEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencyFirst, /*距今1个月询价频次*/
-    ISNULL(_SecondEnquiry1.InquiryFrequency, 0) AS InquiryFrequencySecond1, /*贸易商类型客户距今2个月询价频次*/
-    ISNULL(_SecondEnquiry2.InquiryFrequency, 0) AS InquiryFrequencySecond2, /*终端类型客户距今2个月询价频次*/
-    (ISNULL(_SecondEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_SecondEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencySecond, /*距今2个月询价频次*/
-    ISNULL(_ThirdEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyThird1, /*贸易商类型客户距今3个月询价频次*/
-    ISNULL(_ThirdEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyThird2, /*终端类型客户距今3个月询价频次*/
-    (ISNULL(_ThirdEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_ThirdEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencyThird, /*距今3个月询价频次*/
-    ISNULL(_ForthEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyForth1, /*贸易商类型客户距今4-12个月询价频次*/
-    ISNULL(_ForthEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyForth2, /*终端类型客户距今4-12个月询价频次*/
-    (ISNULL(_ForthEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryFrequency, 0) * 1.5) AS InquiryFrequencyForth, /*距今4-12个月询价频次*/
+SELECT T.Modle,
+       T.Brand,
+    ISNULL(_FirstEnquiry1.InquiryCustomers, 0) AS InquiryCustomersFirst1, /*贸易商类型客户距今1个月询价客户数*/
+    ISNULL(_FirstEnquiry2.InquiryCustomers, 0) AS InquiryCustomersFirst2, /*终端类型客户距今1个月询价客户数*/
+    (ISNULL(_FirstEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersFirst, /*距今1个月询价客户数*/
+    ISNULL(_SecondEnquiry1.InquiryCustomers, 0) AS InquiryCustomersSecond1, /*贸易商类型客户距今2个月询价客户数*/
+    ISNULL(_SecondEnquiry2.InquiryCustomers, 0) AS InquiryCustomersSecond2, /*终端类型客户距今2个月询价客户数*/
+    (ISNULL(_SecondEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_SecondEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersSecond, /*距今2个月询价客户数*/
+    ISNULL(_ThirdEnquiry1.InquiryCustomers, 0) AS InquiryCustomersThird1, /*贸易商类型客户距今3个月询价客户数*/
+    ISNULL(_ThirdEnquiry2.InquiryCustomers, 0) AS InquiryCustomersThird2, /*终端类型客户距今3个月询价客户数*/
+    (ISNULL(_ThirdEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_ThirdEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersThird, /*距今3个月询价客户数*/
+    ISNULL(_ForthEnquiry1.InquiryCustomers, 0) AS InquiryCustomersForth1, /*贸易商类型客户距今4个月询价客户数*/
+    ISNULL(_ForthEnquiry2.InquiryCustomers, 0) AS InquiryCustomersForth2, /*终端类型客户距今4个月询价客户数*/
+    (ISNULL(_ForthEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryCustomers, 0) * 1.5) AS InquiryCustomersForth, /*距今4个月询价客户数*/
     (
-        (ISNULL(_ForthEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryFrequency, 0) * 1.5) * 0.0622 +
-        (ISNULL(_ThirdEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_ThirdEnquiry2.InquiryFrequency, 0) * 1.5) * 0.1217 +
-        (ISNULL(_SecondEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_SecondEnquiry2.InquiryFrequency, 0) * 1.5) * 0.1217 +
-        (ISNULL(_FirstEnquiry1.InquiryFrequency, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryFrequency, 0) * 1.5) * 0.1968
-    ) AS InquiryFrequency /*近一年加权询价频次*/
+        (ISNULL(_ForthEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_ForthEnquiry2.InquiryCustomers, 0) * 1.5) * 0.0622 +
+        (ISNULL(_ThirdEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_ThirdEnquiry2.InquiryCustomers, 0) * 1.5) * 0.1217 +
+        (ISNULL(_SecondEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_SecondEnquiry2.InquiryCustomers, 0) * 1.5) * 0.1217 +
+        (ISNULL(_FirstEnquiry1.InquiryCustomers, 0) * 0.7 + ISNULL(_FirstEnquiry2.InquiryCustomers, 0) * 1.5) * 0.1968
+    ) AS InquiryCustomers /*近一年加权询价客户数*/
     FROM (
         /*近一年询报价业务所涉及的品牌、型号*/
         SELECT
