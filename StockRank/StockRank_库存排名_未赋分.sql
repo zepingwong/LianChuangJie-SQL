@@ -53,7 +53,8 @@ SELECT
     NULL AS SumSaleMoneyScore, /*销售总额得分*/
     InitRank.SumPurchaseMoney, /*11.近一年采购总额*/
     InitRank.SumPurchaseMoneyRank, /*近一年采购总额排名*/
-    NULL AS SumPurchaseMoneyScore /*采购总额得分*/
+    NULL AS SumPurchaseMoneyScore, /*采购总额得分*/
+    NULL AS ToTalScore /*总分*/
     INTO U_StockRank
 FROM (
     SELECT
@@ -182,7 +183,6 @@ FROM (
     FROM (
         /*近一年询报价业务所涉及的品牌、型号*/
         SELECT
-            ROW_NUMBER ( ) OVER ( ORDER BY U_ICIN1.Modle ) AS LineNum,
             U_ICIN1.Modle,
             U_ICIN1.Brand
         FROM

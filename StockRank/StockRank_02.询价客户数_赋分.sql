@@ -1,15 +1,15 @@
 /*询价客户数赋分*/
-DECLARE @MIN_InquiryFrequency INT
-DECLARE @MAX_InquiryFrequency INT
+DECLARE @MIN_InquiryCustomers INT
+DECLARE @MAX_InquiryCustomers INT
 
 SELECT
-    @MIN_InquiryFrequency = MIN(InquiryCustomers),
-    @MAX_InquiryFrequency = MAX(InquiryCustomers)
+    @MIN_InquiryCustomers = MIN(InquiryCustomers),
+    @MAX_InquiryCustomers = MAX(InquiryCustomers)
 FROM U_StockRank
 
 UPDATE U_StockRank
 SET InquiryCustomersScore = IIF(
-    @MAX_InquiryFrequency != @MIN_InquiryFrequency,
-    (InquiryCustomers - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 9 + 1,
+    @MAX_InquiryCustomers != @MIN_InquiryCustomers,
+    (InquiryCustomers - @MIN_InquiryCustomers) / (@MAX_InquiryCustomers - @MIN_InquiryCustomers) * 9 + 1,
     0
 )
