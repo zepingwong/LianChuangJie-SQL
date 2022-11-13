@@ -24,7 +24,7 @@ SELECT
     @MIN_PurchaseFrequency = MIN(PurchaseFrequency),
     @MAX_PurchaseFrequency = MAX(PurchaseFrequency)
 FROM U_StockRank
-WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
+WHERE PurchaseFrequencyRank > @Total * 0.001
 
 UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
@@ -32,4 +32,4 @@ SET PurchaseFrequencyScore = IIF(
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 7 + 1,
     1
 )
-WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
+WHERE PurchaseFrequencyRank > @Total * 0.001

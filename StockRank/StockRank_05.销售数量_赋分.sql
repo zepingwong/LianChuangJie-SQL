@@ -23,7 +23,7 @@ SELECT
     @MIN_DeliveryQuantity = MIN(DeliveryQuantity),
     @MAX_DeliveryQuantity = MAX(DeliveryQuantity)
 FROM U_StockRank
-WHERE DeliveryQuantityRank > @Total * (1- 0.007)
+WHERE DeliveryQuantityRank > @Total * 0.007
 
 UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
@@ -31,4 +31,4 @@ SET DeliveryQuantityScore = IIF(
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 7 + 1,
     1
 )
-WHERE DeliveryQuantityRank > @Total * (1- 0.007)
+WHERE DeliveryQuantityRank > @Total * 0.007

@@ -24,7 +24,7 @@ SELECT
     @MIN_InquiryFrequency = MIN(InquiryFrequency),
     @MAX_InquiryFrequency = MAX(InquiryFrequency)
 FROM U_StockRank
-WHERE InquiryFrequencyRank > @Total * (1- 0.091799)
+WHERE InquiryFrequencyRank > @Total * 0.091799
 
 UPDATE U_StockRank
 SET InquiryFrequencyScore = IIF (
@@ -32,8 +32,7 @@ SET InquiryFrequencyScore = IIF (
     (InquiryFrequency - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 0.99 + 1,
     1
 )
-WHERE InquiryFrequencyRank > @Total * (1- 0.091799)
-
+WHERE InquiryFrequencyRank > @Total * 0.091799
 
 /*询价客户数赋分*/
 DECLARE @MIN_InquiryCustomers INT
@@ -50,7 +49,6 @@ SET InquiryCustomersScore = IIF(
     (InquiryCustomers - @MIN_InquiryCustomers) / (@MAX_InquiryCustomers - @MIN_InquiryCustomers) * 9 + 1,
     1
 )
-
 
 /*订单客户数赋分*/
 DECLARE @MIN_OrderCustomers INT
@@ -91,7 +89,7 @@ SELECT
     @MIN_DeliveryFrequency = MIN(DeliveryFrequency),
     @MAX_DeliveryFrequency = MAX(DeliveryFrequency)
 FROM U_StockRank
-WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
+WHERE DeliveryFrequencyRank > @Total * 0.001
 
 UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
@@ -99,8 +97,7 @@ SET DeliveryFrequencyScore = IIF(
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 7 + 1,
     1
 )
-WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
-
+WHERE DeliveryFrequencyRank > @Total * 0.001
 
 /*销售数量赋分*/
 DECLARE @MIN_DeliveryQuantity INT
@@ -125,7 +122,7 @@ SELECT
     @MIN_DeliveryQuantity = MIN(DeliveryQuantity),
     @MAX_DeliveryQuantity = MAX(DeliveryQuantity)
 FROM U_StockRank
-WHERE DeliveryQuantityRank > @Total * (1- 0.007)
+WHERE DeliveryQuantityRank > @Total * 0.007
 
 UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
@@ -133,7 +130,7 @@ SET DeliveryQuantityScore = IIF(
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 7 + 1,
     1
 )
-WHERE DeliveryQuantityRank > @Total * (1- 0.007)
+WHERE DeliveryQuantityRank > @Total * 0.007
 
 /*平均利润率赋分*/
 DECLARE @MAX_AverageProfit DECIMAL
@@ -149,7 +146,7 @@ UPDATE U_StockRank
 SET AverageProfitScore = IIF(
     @MAX_AverageProfit != @MIN_AverageProfit,
     (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit-@MIN_AverageProfit) *3 + 7,
-    1
+    0
 )
 WHERE AverageProfit > 1
 
@@ -265,7 +262,7 @@ SELECT
     @MIN_PurchaseFrequency = MIN(PurchaseFrequency),
     @MAX_PurchaseFrequency = MAX(PurchaseFrequency)
 FROM U_StockRank
-WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
+WHERE PurchaseFrequencyRank > @Total * 0.001
 
 UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
@@ -273,7 +270,7 @@ SET PurchaseFrequencyScore = IIF(
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 7 + 1,
     1
 )
-WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
+WHERE PurchaseFrequencyRank > @Total * 0.001
 
 /*销售总额赋分*/
 DECLARE @MIN_SumSaleMoney INT
@@ -298,7 +295,7 @@ SELECT
     @MIN_SumSaleMoney = MIN(SumSaleMoney),
     @MAX_SumSaleMoney = MAX(SumSaleMoney)
 FROM U_StockRank
-WHERE SumSaleMoneyRank > @Total * (1- 0.004)
+WHERE SumSaleMoneyRank > @Total * 0.004
 
 UPDATE U_StockRank
 SET SumSaleMoneyScore = IIF(
@@ -306,7 +303,7 @@ SET SumSaleMoneyScore = IIF(
     (SumSaleMoney - @MIN_SumSaleMoney) / (@MAX_SumSaleMoney - @MIN_SumSaleMoney) * 7 + 1,
     1
 )
-WHERE SumSaleMoneyRank > @Total * (1- 0.004)
+WHERE SumSaleMoneyRank > @Total * 0.004
 
 /*采购总额赋分*/
 DECLARE @MIN_SumPurchaseMoney INT
@@ -331,7 +328,7 @@ SELECT
     @MIN_SumPurchaseMoney = MIN(SumPurchaseMoney),
     @MAX_SumPurchaseMoney = MAX(SumPurchaseMoney)
 FROM U_StockRank
-WHERE SumPurchaseMoneyRank > @Total * (1- 0.00254)
+WHERE SumPurchaseMoneyRank > @Total * 0.00254
 
 UPDATE U_StockRank
 SET SumPurchaseMoneyScore = IIF(
@@ -339,7 +336,7 @@ SET SumPurchaseMoneyScore = IIF(
     (SumPurchaseMoney - @MIN_SumPurchaseMoney) / (@MAX_SumPurchaseMoney - @MIN_SumPurchaseMoney) * 7 + 1,
     1
 )
-WHERE SumPurchaseMoneyRank > @Total * (1- 0.00254)
+WHERE SumPurchaseMoneyRank > @Total * 0.00254
 
 UPDATE U_StockRank
 SET ToTalScore =

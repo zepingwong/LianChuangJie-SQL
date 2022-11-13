@@ -23,7 +23,7 @@ SELECT
     @MIN_DeliveryFrequency = MIN(DeliveryFrequency),
     @MAX_DeliveryFrequency = MAX(DeliveryFrequency)
 FROM U_StockRank
-WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
+WHERE DeliveryFrequencyRank > @Total * 0.001
 
 UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
@@ -31,4 +31,4 @@ SET DeliveryFrequencyScore = IIF(
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 7 + 1,
     1
 )
-WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
+WHERE DeliveryFrequencyRank > @Total * 0.001

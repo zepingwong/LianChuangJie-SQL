@@ -24,7 +24,7 @@ SELECT
     @MIN_SumPurchaseMoney = MIN(SumPurchaseMoney),
     @MAX_SumPurchaseMoney = MAX(SumPurchaseMoney)
 FROM U_StockRank
-WHERE SumPurchaseMoneyRank > @Total * (1- 0.00254)
+WHERE SumPurchaseMoneyRank > @Total * 0.00254
 
 UPDATE U_StockRank
 SET SumPurchaseMoneyScore = IIF(
@@ -32,4 +32,4 @@ SET SumPurchaseMoneyScore = IIF(
     (SumPurchaseMoney - @MIN_SumPurchaseMoney) / (@MAX_SumPurchaseMoney - @MIN_SumPurchaseMoney) * 7 + 1,
     1
 )
-WHERE SumPurchaseMoneyRank > @Total * (1- 0.00254)
+WHERE SumPurchaseMoneyRank > @Total * 0.00254
