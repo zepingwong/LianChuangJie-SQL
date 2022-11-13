@@ -14,7 +14,7 @@ UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
     @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 2 + 8,
-    0
+    1
 )
 WHERE DeliveryFrequencyRank <= @Total * 0.001
 
@@ -29,6 +29,6 @@ UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
     @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 7 + 1,
-    0
+    1
 )
 WHERE DeliveryFrequencyRank > @Total * (1- 0.001)

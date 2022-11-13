@@ -25,16 +25,17 @@ SELECT
     T.Modle,
     IIF(Purchase.SumMoney IS NOT NULL AND Purchase.SumMoney != 0, ISNULL(Sale.SumMoney, 0) / Purchase.SumMoney -1, NULL) AS AverageProfit /*近一年平均利润率*/
 FROM (
-    SELECT
-        1 AS DocEntry,
-        ROW_NUMBER ( ) OVER ( ORDER BY U_ICIN1.Modle ) AS LineNum,
-        U_ICIN1.Modle,
-        U_ICIN1.Brand
-    FROM
-        U_ICIN1
-    GROUP BY
-        U_ICIN1.Modle,
-        U_ICIN1.Brand
+        /*近一年询报价业务所涉及的品牌、型号*/
+        SELECT
+            U_ICIN1.Modle,
+            U_ICIN1.Brand
+        FROM
+            U_ICIN1
+        LEFT JOIN T_ICIN ON U_ICIN1.DocEntry = T_ICIN.DocEntry
+        WHERE DATEDIFF(MONTH ,T_ICIN.InquiryDate, GETDATE( )) < 12
+        GROUP BY
+            U_ICIN1.Modle,
+            U_ICIN1.Brand
 ) T
 /*采购数量、采购价格、采购频次*/
 LEFT JOIN (

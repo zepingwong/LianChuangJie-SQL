@@ -28,7 +28,7 @@ UPDATE U_StockRank
 SET AverageProfitScore =  IIF(
     @MAX_AverageProfit != @MIN_AverageProfit,
     (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit - @MIN_AverageProfit) * 5 + 2,
-    0
+    1
 )
 WHERE AverageProfit <= 1
 AND AverageProfit >= 0
@@ -43,6 +43,6 @@ UPDATE U_StockRank
 SET AverageProfitScore = IIF(
         @MAX_AverageProfit != @MIN_AverageProfit,
         (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit - @MIN_AverageProfit) + 1,
-        0
+        1
 )
 WHERE AverageProfit < 0

@@ -54,6 +54,8 @@ SELECT
     InitRank.SumPurchaseMoney, /*11.近一年采购总额*/
     InitRank.SumPurchaseMoneyRank, /*近一年采购总额排名*/
     NULL AS SumPurchaseMoneyScore, /*采购总额得分*/
+    InitRank.BrandScore, /*12.品牌得分*/
+    ROW_NUMBER() OVER(ORDER BY InitRank.BrandScore DESC) as BrandScoreRank, /*品牌得分排名*/
     NULL AS ToTalScore /*总分*/
     INTO U_StockRank
 FROM (
@@ -175,10 +177,21 @@ FROM (
 
     /*11.采购总额*/
     ISNULL(Purchase.SumMoney, 0) AS SumPurchaseMoney, /*近一年采购总额*/
-    ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank /*近一年销售总额排名*/
+    ROW_NUMBER() OVER(ORDER BY Purchase.SumMoney DESC) as SumPurchaseMoneyRank, /*近一年销售总额排名*/
 
     /*12.品牌得分*/
-
+    ISNULL(BrandPurchase.SumMoney, 0) AS BrandSumPurchaseMoney, /*品牌总采购额*/
+    ISNULL(BrandPurchase.SumQuantity, 0) AS BrandSumPurchaseQuantity, /*品牌总采购数量*/
+    ISNULL(BrandPurchase.Suppliers, 0) AS BrandSumPurchaseSuppliers, /*品牌供应商数量*/
+    ISNULL(BrandSale.Customers, 0) AS BrandSumSaleCustomers, /*销售客户数量*/
+    ISNULL(BrandModle.ModleCount, 0) AS BrandModleCount, /*所属型号数量*/
+    (
+        ISNULL(BrandPurchase.SumMoney, 0) * 0.34 +
+        ISNULL(BrandPurchase.SumQuantity, 0) * 0.34 +
+        ISNULL(BrandSale.Customers, 0) * 0.178 +
+        ISNULL(BrandPurchase.Suppliers, 0) * 0.099 +
+        ISNULL(BrandModle.ModleCount, 0) * 0.043
+    ) BrandScore
 
     FROM (
         /*近一年询报价业务所涉及的品牌、型号*/
@@ -487,6 +500,41 @@ FROM (
             OIVL.Brand,
             OIVL.ItemName
     ) Purchase ON Purchase.Brand = T.Brand AND Purchase.Modle = T.Modle
+
+    LEFT JOIN (
+        SELECT
+            Brand,
+            SUM(Quantity * U_OIVL.PPriceAFVAT) AS SumMoney,
+            SUM(Quantity) AS SumQuantity,
+            COUNT(DISTINCT CardCode) AS Suppliers
+        FROM U_OIVL
+        WHERE BaseName = N'采购入库'
+        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
+        GROUP BY Brand
+    ) BrandPurchase ON BrandPurchase.Brand = T.Brand
+
+    LEFT JOIN (
+        SELECT
+            Brand,
+            SUM(Quantity * U_OIVL.SPriceAFVAT * ExchangeRate.Rate) AS SumMoney,
+            SUM(Quantity) AS SumQuantity,
+            COUNT (DISTINCT CardCode) AS Customers
+        FROM U_OIVL
+        LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
+        WHERE BaseName = N'交货单'
+        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
+        GROUP BY Brand
+    ) BrandSale ON BrandSale.Brand = T.Brand
+
+    LEFT JOIN (
+        SELECT
+            Brand,
+            COUNT(DISTINCT U_OIVL.ItemName) AS ModleCount
+        FROM U_OIVL
+        WHERE BaseName IN ( N'交货单', N'采购入库')
+        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
+        GROUP BY Brand
+    ) BrandModle ON BrandModle.Brand = T.Brand
 ) InitRank
 
 DROP TABLE #ExchangeRate

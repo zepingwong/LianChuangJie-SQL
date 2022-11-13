@@ -16,7 +16,7 @@ UPDATE U_StockRank
 SET SumPurchaseQuantity = IIF(
     @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
     (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) *2 + 8,
-    0
+    1
 )
 WHERE SumPurchaseQuantityRank <= @Total * 0.00781
 
@@ -32,7 +32,7 @@ UPDATE U_StockRank
 SET SumPurchaseQuantity = IIF(
     @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
     (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) * 7 + 1,
-    0
+    1
 )
 WHERE SumPurchaseQuantityRank > @Total * 0.00781
 

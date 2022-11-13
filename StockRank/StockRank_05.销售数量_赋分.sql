@@ -14,7 +14,7 @@ UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
     @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 8 + 2,
-    0
+    1
 )
 WHERE DeliveryQuantityRank <= @Total * 0.007
 
@@ -29,6 +29,6 @@ UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
     @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 7 + 1,
-    0
+    1
 )
 WHERE DeliveryQuantityRank > @Total * (1- 0.007)

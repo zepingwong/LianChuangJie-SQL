@@ -33,7 +33,6 @@ SELECT
     FROM (
         /*近一年询报价业务所涉及的品牌、型号*/
         SELECT
-            ROW_NUMBER ( ) OVER ( ORDER BY U_ICIN1.Modle ) AS LineNum,
             U_ICIN1.Modle,
             U_ICIN1.Brand
         FROM

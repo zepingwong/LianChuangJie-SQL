@@ -11,5 +11,5 @@ UPDATE U_StockRank
 SET OrderCustomersScore = IIF(
     @MAX_OrderCustomers != @MIN_OrderCustomers,
     (OrderCustomers - @MIN_OrderCustomers) / (@MAX_OrderCustomers - @MIN_OrderCustomers) * 9 + 1,
-    0
+    1
 )

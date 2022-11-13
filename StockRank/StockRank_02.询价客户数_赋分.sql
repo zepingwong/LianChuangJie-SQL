@@ -11,5 +11,5 @@ UPDATE U_StockRank
 SET InquiryCustomersScore = IIF(
     @MAX_InquiryCustomers != @MIN_InquiryCustomers,
     (InquiryCustomers - @MIN_InquiryCustomers) / (@MAX_InquiryCustomers - @MIN_InquiryCustomers) * 9 + 1,
-    0
+    1
 )

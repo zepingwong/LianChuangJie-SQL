@@ -15,7 +15,7 @@ UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
     @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 8 + 2,
-    0
+    1
 )
 WHERE PurchaseFrequencyRank <= @Total * 0.001
 
@@ -30,6 +30,6 @@ UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
     @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 7 + 1,
-    0
+    1
 )
 WHERE PurchaseFrequencyRank > @Total * (1- 0.001)

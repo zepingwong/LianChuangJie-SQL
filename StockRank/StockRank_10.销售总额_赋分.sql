@@ -15,7 +15,7 @@ UPDATE U_StockRank
 SET SumSaleMoneyScore = IIF(
     @MAX_SumSaleMoney != @MIN_SumSaleMoney,
     (SumSaleMoney - @MIN_SumSaleMoney) / (@MAX_SumSaleMoney - @MIN_SumSaleMoney) * 2 + 8,
-    0
+    1
 )
 WHERE SumSaleMoneyRank <= @Total * 0.004
 
@@ -30,6 +30,6 @@ UPDATE U_StockRank
 SET SumSaleMoneyScore = IIF(
     @MAX_SumSaleMoney != @MIN_SumSaleMoney,
     (SumSaleMoney - @MIN_SumSaleMoney) / (@MAX_SumSaleMoney - @MIN_SumSaleMoney) * 7 + 1,
-    0
+    1
 )
 WHERE SumSaleMoneyRank > @Total * (1- 0.004)

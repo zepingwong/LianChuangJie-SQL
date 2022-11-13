@@ -15,7 +15,7 @@ UPDATE U_StockRank
 SET InquiryFrequencyScore = IIF (
     @MIN_InquiryFrequency != @MAX_InquiryFrequency,
     (InquiryFrequency - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 8 + 2,
-    0
+    1
 )
 WHERE InquiryFrequencyRank <= @Total * 0.091799
 
@@ -24,12 +24,12 @@ SELECT
     @MIN_InquiryFrequency = MIN(InquiryFrequency),
     @MAX_InquiryFrequency = MAX(InquiryFrequency)
 FROM U_StockRank
-WHERE InquiryFrequencyRank > @Total * (1- 0.091799)
+WHERE InquiryFrequencyRank > @Total * 0.091799
 
 UPDATE U_StockRank
 SET InquiryFrequencyScore = IIF (
     @MIN_InquiryFrequency != @MAX_InquiryFrequency,
     (InquiryFrequency - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 0.99 + 1,
-    0
+    1
 )
-WHERE InquiryFrequencyRank > @Total * (1- 0.091799)
+WHERE InquiryFrequencyRank > @Total * 0.091799

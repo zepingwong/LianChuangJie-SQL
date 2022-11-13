@@ -15,7 +15,7 @@ UPDATE U_StockRank
 SET InquiryFrequencyScore = IIF (
     @MIN_InquiryFrequency != @MAX_InquiryFrequency,
     (InquiryFrequency - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 8 + 2,
-    0
+    1
 )
 WHERE InquiryFrequencyRank <= @Total * 0.091799
 
@@ -30,7 +30,7 @@ UPDATE U_StockRank
 SET InquiryFrequencyScore = IIF (
     @MIN_InquiryFrequency != @MAX_InquiryFrequency,
     (InquiryFrequency - @MIN_InquiryFrequency) / (@MAX_InquiryFrequency - @MIN_InquiryFrequency) * 0.99 + 1,
-    0
+    1
 )
 WHERE InquiryFrequencyRank > @Total * (1- 0.091799)
 
@@ -48,7 +48,7 @@ UPDATE U_StockRank
 SET InquiryCustomersScore = IIF(
     @MAX_InquiryCustomers != @MIN_InquiryCustomers,
     (InquiryCustomers - @MIN_InquiryCustomers) / (@MAX_InquiryCustomers - @MIN_InquiryCustomers) * 9 + 1,
-    0
+    1
 )
 
 
@@ -65,7 +65,7 @@ UPDATE U_StockRank
 SET OrderCustomersScore = IIF(
     @MAX_OrderCustomers != @MIN_OrderCustomers,
     (OrderCustomers - @MIN_OrderCustomers) / (@MAX_OrderCustomers - @MIN_OrderCustomers) * 9 + 1,
-    0
+    1
 )
 
 /*交货单频次赋分*/
@@ -82,7 +82,7 @@ UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
     @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 2 + 8,
-    0
+    1
 )
 WHERE DeliveryFrequencyRank <= @Total * 0.001
 
@@ -97,7 +97,7 @@ UPDATE U_StockRank
 SET DeliveryFrequencyScore = IIF(
     @MAX_DeliveryFrequency != @MIN_DeliveryFrequency,
     (DeliveryFrequency - @MIN_DeliveryFrequency) / (@MAX_DeliveryFrequency - @MIN_DeliveryFrequency) * 7 + 1,
-    0
+    1
 )
 WHERE DeliveryFrequencyRank > @Total * (1- 0.001)
 
@@ -116,7 +116,7 @@ UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
     @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 8 + 2,
-    0
+    1
 )
 WHERE DeliveryQuantityRank <= @Total * 0.007
 
@@ -131,7 +131,7 @@ UPDATE U_StockRank
 SET DeliveryQuantityScore = IIF(
     @MAX_DeliveryQuantity != @MIN_DeliveryQuantity,
     (DeliveryQuantity - @MIN_DeliveryQuantity) / (@MAX_DeliveryQuantity - @MIN_DeliveryQuantity) * 7 + 1,
-    0
+    1
 )
 WHERE DeliveryQuantityRank > @Total * (1- 0.007)
 
@@ -149,7 +149,7 @@ UPDATE U_StockRank
 SET AverageProfitScore = IIF(
     @MAX_AverageProfit != @MIN_AverageProfit,
     (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit-@MIN_AverageProfit) *3 + 7,
-    0
+    1
 )
 WHERE AverageProfit > 1
 
@@ -165,7 +165,7 @@ UPDATE U_StockRank
 SET AverageProfitScore =  IIF(
     @MAX_AverageProfit != @MIN_AverageProfit,
     (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit - @MIN_AverageProfit) * 5 + 2,
-    0
+    1
 )
 WHERE AverageProfit <= 1
 AND AverageProfit >= 0
@@ -180,7 +180,7 @@ UPDATE U_StockRank
 SET AverageProfitScore = IIF(
         @MAX_AverageProfit != @MIN_AverageProfit,
         (AverageProfit - @MIN_AverageProfit) / (@MAX_AverageProfit - @MIN_AverageProfit) + 1,
-        0
+        1
 )
 WHERE AverageProfit < 0
 
@@ -222,7 +222,7 @@ UPDATE U_StockRank
 SET SumPurchaseQuantity = IIF(
     @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
     (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) *2 + 8,
-    0
+    1
 )
 WHERE SumPurchaseQuantityRank <= @Total * 0.00781
 
@@ -238,7 +238,7 @@ UPDATE U_StockRank
 SET SumPurchaseQuantity = IIF(
     @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
     (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) * 7 + 1,
-    0
+    1
 )
 WHERE SumPurchaseQuantityRank > @Total * 0.00781
 
@@ -256,7 +256,7 @@ UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
     @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 8 + 2,
-    0
+    1
 )
 WHERE PurchaseFrequencyRank <= @Total * 0.001
 
@@ -271,7 +271,7 @@ UPDATE U_StockRank
 SET PurchaseFrequencyScore = IIF(
     @MAX_PurchaseFrequency != @MIN_PurchaseFrequency,
     (PurchaseFrequency - @MIN_PurchaseFrequency) / (@MAX_PurchaseFrequency - @MIN_PurchaseFrequency) * 7 + 1,
-    0
+    1
 )
 WHERE PurchaseFrequencyRank > @Total * (1- 0.001)
 
@@ -289,7 +289,7 @@ UPDATE U_StockRank
 SET SumSaleMoneyScore = IIF(
     @MAX_SumSaleMoney != @MIN_SumSaleMoney,
     (SumSaleMoney - @MIN_SumSaleMoney) / (@MAX_SumSaleMoney - @MIN_SumSaleMoney) * 2 + 8,
-    0
+    1
 )
 WHERE SumSaleMoneyRank <= @Total * 0.004
 
@@ -304,7 +304,7 @@ UPDATE U_StockRank
 SET SumSaleMoneyScore = IIF(
     @MAX_SumSaleMoney != @MIN_SumSaleMoney,
     (SumSaleMoney - @MIN_SumSaleMoney) / (@MAX_SumSaleMoney - @MIN_SumSaleMoney) * 7 + 1,
-    0
+    1
 )
 WHERE SumSaleMoneyRank > @Total * (1- 0.004)
 
@@ -322,7 +322,7 @@ UPDATE U_StockRank
 SET SumPurchaseMoneyScore = IIF(
     @MAX_SumPurchaseMoney != @MIN_SumPurchaseMoney,
     (SumPurchaseMoney - @MIN_SumPurchaseMoney) / (@MAX_SumPurchaseMoney - @MIN_SumPurchaseMoney) * 2 + 8,
-    0
+    1
 )
 WHERE SumPurchaseMoneyRank <= @Total * 0.00254
 
@@ -337,7 +337,7 @@ UPDATE U_StockRank
 SET SumPurchaseMoneyScore = IIF(
     @MAX_SumPurchaseMoney != @MIN_SumPurchaseMoney,
     (SumPurchaseMoney - @MIN_SumPurchaseMoney) / (@MAX_SumPurchaseMoney - @MIN_SumPurchaseMoney) * 7 + 1,
-    0
+    1
 )
 WHERE SumPurchaseMoneyRank > @Total * (1- 0.00254)
 
@@ -353,4 +353,5 @@ SET ToTalScore =
     SumPurchaseQuantity * 0.0124 +
     PurchaseFrequencyScore * 0.0326 +
     SumSaleMoneyScore * 0.0303 +
-    SumPurchaseMoneyScore * 0.0167
+    SumPurchaseMoneyScore * 0.0167 +
+    BrandScore * 0.0567
