@@ -21,21 +21,45 @@ FROM (
 DROP TABLE U_StockRank
 SELECT
     -- COUNT(*)
+    InitRank.Brand,
+    InitRank.Modle,
+    InitRank.InquiryDemandQty1, /*近三个月贸易商类型客户询价数量*/
+    InitRank.InquiryDemandQty2, /*近三个月终端类型客户询价数量*/
     InitRank.InquiryFrequency, /*01.近一年加权询价频次*/
     ROW_NUMBER() OVER(ORDER BY InitRank.InquiryFrequency DESC) as InquiryFrequencyRank, /*加权询价频次排名*/
     NULL AS InquiryFrequencyScore, /*加权询价频次得分*/
+    InitRank.InquiryFrequencyFirst,
+    InitRank.InquiryFrequencySecond,
+    InitRank.InquiryFrequencyThird,
+    InitRank.InquiryFrequencyForth,
     InitRank.InquiryCustomers, /*02.加权询价客户数*/
     ROW_NUMBER() OVER(ORDER BY InitRank.InquiryCustomers DESC) as InquiryCustomersRank, /*加权询价客户数排名*/
     NULL AS InquiryCustomersScore, /*加权询价客户数得分*/
+    InitRank.InquiryCustomersFirst,
+    InitRank.InquiryCustomersSecond,
+    InitRank.InquiryCustomersThird,
+    InitRank.InquiryCustomersForth,
     InitRank.OrderCustomers, /*03.近一年加权订单客户数量*/
     ROW_NUMBER() OVER(ORDER BY InitRank.OrderCustomers DESC) as OrderCustomersRank, /*加权订单客户数量排名*/
     NULL AS OrderCustomersScore, /*加权订单客户数量得分*/
+    InitRank.OrderCustomersFirst,
+    InitRank.OrderCustomersSecond,
+    InitRank.OrderCustomersThird,
+    InitRank.OrderCustomersForth,
     InitRank.DeliveryFrequency, /*04.近一年加权交货单频次*/
     ROW_NUMBER() OVER(ORDER BY InitRank.DeliveryFrequency DESC) as DeliveryFrequencyRank, /*近一年加权交货单频次排名*/
     NULL AS DeliveryFrequencyScore, /*加权交货单频次得分*/
+    InitRank.DeliveryFrequencyFirst,
+    InitRank.DeliveryFrequencySecond,
+    InitRank.DeliveryFrequencyThird,
+    InitRank.DeliveryFrequencyForth,
     InitRank.DeliveryQuantity, /*05.近一年加权销售总数*/
     ROW_NUMBER() OVER(ORDER BY InitRank.DeliveryQuantity DESC) as DeliveryQuantityRank, /*近一年加权销售总数排名*/
     NULL AS DeliveryQuantityScore, /*加权销售总数得分*/
+    InitRank.DeliveryQuantityFirst,
+    InitRank.DeliveryQuantitySecond,
+    InitRank.DeliveryQuantityThird,
+    InitRank.DeliveryQuantityForth,
     InitRank.AverageProfit, /*06.近一年平均利润率*/
     ROW_NUMBER() OVER(ORDER BY InitRank.AverageProfit DESC) as AverageProfitRank, /*近一年平均利润率排名*/
     NULL AS AverageProfitScore, /*近一年平均利润率得分*/
@@ -51,17 +75,31 @@ SELECT
     InitRank.SumSaleMoney, /*10.近一年销售总额*/
     ROW_NUMBER() OVER(ORDER BY InitRank.SumSaleMoney DESC) as SumSaleMoneyRank, /*近一年销售总额排名*/
     NULL AS SumSaleMoneyScore, /*销售总额得分*/
+    InitRank.SumSaleMoneyFirst,
+    InitRank.SumSaleMoneySecond,
+    InitRank.SumSaleMoneyThird,
+    InitRank.SumSaleMoneyForth,
     InitRank.SumPurchaseMoney, /*11.近一年采购总额*/
     InitRank.SumPurchaseMoneyRank, /*近一年采购总额排名*/
     NULL AS SumPurchaseMoneyScore, /*采购总额得分*/
     InitRank.BrandScore, /*12.品牌得分*/
     ROW_NUMBER() OVER(ORDER BY InitRank.BrandScore DESC) as BrandScoreRank, /*品牌得分排名*/
-    NULL AS ToTalScore /*总分*/
+    NULL AS TotalScore /*总分*/
     INTO U_StockRank
 FROM (
     SELECT
     T.Modle,
     T.Brand,
+    (
+        ISNULL(_FirstEnquiry1.InquiryDemandQty, 0) +
+        ISNULL(_SecondEnquiry1.InquiryDemandQty, 0) +
+        ISNULL(_ThirdEnquiry1.InquiryDemandQty, 0)
+    ) AS InquiryDemandQty1, /*近三个月贸易商类型客户询价数量*/
+    (
+        ISNULL(_FirstEnquiry2.InquiryDemandQty, 0) +
+        ISNULL(_SecondEnquiry2.InquiryDemandQty, 0) +
+        ISNULL(_ThirdEnquiry2.InquiryDemandQty, 0)
+    ) AS InquiryDemandQty2, /*近三个月终端类型客户询价数量*/
     /*01.询价频次*/
     ISNULL(_FirstEnquiry1.InquiryFrequency, 0) AS InquiryFrequencyFirst1, /*贸易商类型客户距今1个月询价频次*/
     ISNULL(_FirstEnquiry2.InquiryFrequency, 0) AS InquiryFrequencyFirst2, /*终端类型客户距今1个月询价频次*/
@@ -211,6 +249,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -227,6 +266,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -245,6 +285,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -261,6 +302,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -278,6 +320,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -294,6 +337,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -311,6 +355,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM
@@ -328,6 +373,7 @@ FROM (
     SELECT
         U_ICIN1.Brand,
         U_ICIN1.Modle,
+        SUM(U_ICIN1.DemandQty) AS InquiryDemandQty,
         COUNT ( * ) AS InquiryFrequency,  /*询价频次*/
         COUNT (DISTINCT  T_ICIN.CardName ) AS InquiryCustomers /*询价客户数*/
     FROM

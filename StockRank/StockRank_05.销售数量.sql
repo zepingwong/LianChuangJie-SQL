@@ -17,7 +17,7 @@ FROM (
         'RMB'    AS 'Currency',
         1.000000 AS 'Rate'
 ) T
-
+/*****************************************取销售订单***************************************************/
 SELECT
     ISNULL(_FirstDeliveryFrequency.Quantity, 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
     ISNULL(_SecondDeliveryFrequency.Quantity, 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/

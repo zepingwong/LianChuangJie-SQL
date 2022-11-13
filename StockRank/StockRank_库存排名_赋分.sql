@@ -339,7 +339,7 @@ SET SumPurchaseMoneyScore = IIF(
 WHERE SumPurchaseMoneyRank > @Total * 0.00254
 
 UPDATE U_StockRank
-SET ToTalScore =
+SET TotalScore =
     InquiryFrequencyScore * 0.369 +
     InquiryCustomersScore  * 0.0528 +
     OrderCustomersScore * 0.0648 +
