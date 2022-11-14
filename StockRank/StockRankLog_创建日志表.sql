@@ -4,5 +4,6 @@ CREATE TABLE [dbo].[U_SRAL] (
   [StartTime] datetime  NULL,
   [EndTime] datetime  NULL,
   [Result] int  NULL,
-  [TriggerName] varchar(255) COLLATE Chinese_PRC_CI_AS  NULL
+  [TriggerName] varchar(255) COLLATE Chinese_PRC_CI_AS  NULL,
+  [RunTime] bigint  NULL
 )

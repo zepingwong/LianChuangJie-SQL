@@ -1,0 +1,2 @@
+UPDATE U_SPAL SET RunTime = DATEDIFF(SECOND, StartTime, EndTime)
+
