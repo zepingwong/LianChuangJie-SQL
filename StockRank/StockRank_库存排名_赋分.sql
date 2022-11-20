@@ -338,6 +338,179 @@ SET SumPurchaseMoneyScore = IIF(
 )
 WHERE SumPurchaseMoneyRank > @Total * 0.00254
 
+/*品牌供应商数量赋分*/
+DECLARE @MIN_BrandSumPurchaseSuppliers INT
+DECLARE @MAX_BrandSumPurchaseSuppliers INT
+/*排名前3.2168%*/
+SELECT
+    @MIN_BrandSumPurchaseSuppliers = MIN(BrandSumPurchaseSuppliers),
+    @MAX_BrandSumPurchaseSuppliers = MAX(BrandSumPurchaseSuppliers)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank <= @Total * 0.032168
+
+UPDATE U_StockRank
+SET BrandSumPurchaseSuppliersScore = IIF(
+    @MAX_BrandSumPurchaseSuppliers != @MIN_BrandSumPurchaseSuppliers,
+    (BrandSumPurchaseSuppliers - @MIN_BrandSumPurchaseSuppliers) / (@MAX_BrandSumPurchaseSuppliers - @MIN_BrandSumPurchaseSuppliers) * 2 + 8,
+    1
+)
+WHERE SumPurchaseMoneyRank <= @Total * 0.032168
+
+/*其余*/
+SELECT
+    @MIN_BrandSumPurchaseSuppliers = MIN(BrandSumPurchaseSuppliers),
+    @MAX_BrandSumPurchaseSuppliers = MAX(BrandSumPurchaseSuppliers)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank > @Total * 0.032168
+
+UPDATE U_StockRank
+SET BrandSumPurchaseSuppliersScore = IIF(
+    @MAX_BrandSumPurchaseSuppliers != @MIN_BrandSumPurchaseSuppliers,
+    (BrandSumPurchaseSuppliers - @MIN_BrandSumPurchaseSuppliers) / (@MAX_BrandSumPurchaseSuppliers - @MIN_BrandSumPurchaseSuppliers) * 7 + 1,
+    1
+)
+WHERE SumPurchaseMoneyRank > @Total * 0.032168
+
+/*品牌客户赋分*/
+DECLARE @MIN_BrandSumSaleCustomers INT
+DECLARE @MAX_BrandSumSaleCustomers INT
+/*排名前1.1189%*/
+SELECT
+    @MIN_BrandSumSaleCustomers = MIN(BrandSumSaleCustomers),
+    @MAX_BrandSumSaleCustomers = MAX(BrandSumSaleCustomers)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank <= @Total * 0.011189
+
+UPDATE U_StockRank
+SET BrandSumSaleCustomersScore = IIF(
+    @MAX_BrandSumSaleCustomers != @MIN_BrandSumSaleCustomers,
+    (BrandSumSaleCustomers - @MIN_BrandSumSaleCustomers) / (@MAX_BrandSumSaleCustomers - @MIN_BrandSumSaleCustomers) * 2 + 8,
+    1
+)
+WHERE SumPurchaseMoneyRank <= @Total * 0.011189
+
+/*其余*/
+SELECT
+    @MIN_BrandSumSaleCustomers = MIN(BrandSumSaleCustomers),
+    @MAX_BrandSumSaleCustomers = MAX(BrandSumSaleCustomers)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank > @Total * 0.011189
+
+UPDATE U_StockRank
+SET BrandSumSaleCustomersScore = IIF(
+    @MAX_BrandSumSaleCustomers != @MIN_BrandSumSaleCustomers,
+    (BrandSumSaleCustomers - @MIN_BrandSumSaleCustomers) / (@MAX_BrandSumSaleCustomers - @MIN_BrandSumSaleCustomers) * 7 + 1,
+    1
+)
+WHERE SumPurchaseMoneyRank > @Total * 0.011189
+
+/*品牌所属型号赋分*/
+DECLARE @MIN_BrandModleCount INT
+DECLARE @MAX_BrandModleCount INT
+/*排名前1.2587%*/
+SELECT
+    @MIN_BrandModleCount = MIN(BrandModleCount),
+    @MAX_BrandModleCount = MAX(BrandModleCount)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank <= @Total * 0.012587
+
+UPDATE U_StockRank
+SET BrandModleCountScore = IIF(
+    @MAX_BrandModleCount != @MIN_BrandModleCount,
+    (BrandModleCount - @MIN_BrandModleCount) / (@MAX_BrandModleCount - @MIN_BrandModleCount) * 2 + 8,
+    1
+)
+WHERE SumPurchaseMoneyRank <= @Total * 0.012587
+
+/*其余*/
+SELECT
+    @MIN_BrandModleCount = MIN(BrandModleCount),
+    @MAX_BrandModleCount = MAX(BrandModleCount)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank > @Total * 0.012587
+
+UPDATE U_StockRank
+SET BrandModleCountScore = IIF(
+    @MAX_BrandModleCount != @MIN_BrandModleCount,
+    (BrandModleCount - @MIN_BrandModleCount) / (@MAX_BrandModleCount - @MIN_BrandModleCount) * 7 + 1,
+    1
+)
+WHERE SumPurchaseMoneyRank > @Total * 0.012587
+
+/*品牌采购总数赋分*/
+DECLARE @MIN_BrandSumPurchaseQuantity INT
+DECLARE @MAX_BrandSumPurchaseQuantity INT
+/*排名前3.4965%*/
+SELECT
+    @MIN_BrandSumPurchaseQuantity = MIN(BrandSumPurchaseQuantity),
+    @MAX_BrandSumPurchaseQuantity = MAX(BrandSumPurchaseQuantity)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank <= @Total * 0.034965
+
+UPDATE U_StockRank
+SET BrandSumPurchaseQuantityScore = IIF(
+    @MAX_BrandSumPurchaseQuantity != @MIN_BrandSumPurchaseQuantity,
+    (BrandSumPurchaseQuantity - @MIN_BrandSumPurchaseQuantity) / (@MAX_BrandSumPurchaseQuantity - @MIN_BrandSumPurchaseQuantity) * 2 + 8,
+    1
+)
+WHERE SumPurchaseMoneyRank <= @Total * 0.034965
+
+/*其余*/
+SELECT
+    @MIN_BrandSumPurchaseQuantity = MIN(BrandSumPurchaseQuantity),
+    @MAX_BrandSumPurchaseQuantity = MAX(BrandSumPurchaseQuantity)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank > @Total * 0.034965
+
+UPDATE U_StockRank
+SET BrandSumPurchaseQuantityScore = IIF(
+    @MAX_BrandSumPurchaseQuantity != @MIN_BrandSumPurchaseQuantity,
+    (BrandSumPurchaseQuantity - @MIN_BrandSumPurchaseQuantity) / (@MAX_BrandSumPurchaseQuantity - @MIN_BrandSumPurchaseQuantity) * 7 + 1,
+    1
+)
+WHERE SumPurchaseMoneyRank > @Total * 0.034965
+
+/*品牌采购总额赋分*/
+DECLARE @MIN_BrandSumPurchaseMoney INT
+DECLARE @MAX_BrandSumPurchaseMoney INT
+/*排名前0.8392%*/
+SELECT
+    @MIN_BrandSumPurchaseMoney = MIN(BrandSumPurchaseMoney),
+    @MAX_BrandSumPurchaseMoney = MAX(BrandSumPurchaseMoney)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank <= @Total * 0.008392
+
+UPDATE U_StockRank
+SET BrandSumPurchaseMoneyScore = IIF(
+    @MAX_BrandSumPurchaseMoney != @MIN_BrandSumPurchaseMoney,
+    (BrandSumPurchaseMoney - @MIN_BrandSumPurchaseMoney) / (@MAX_BrandSumPurchaseMoney - @MIN_BrandSumPurchaseMoney) * 2 + 8,
+    1
+)
+WHERE SumPurchaseMoneyRank <= @Total * 0.008392
+
+/*其余*/
+SELECT
+    @MIN_BrandSumPurchaseMoney = MIN(BrandSumPurchaseMoney),
+    @MAX_BrandSumPurchaseMoney = MAX(BrandSumPurchaseMoney)
+FROM U_StockRank
+WHERE SumPurchaseMoneyRank > @Total * 0.008392
+
+UPDATE U_StockRank
+SET BrandSumPurchaseMoneyScore = IIF(
+    @MAX_BrandSumPurchaseMoney != @MIN_BrandSumPurchaseMoney,
+    (BrandSumPurchaseMoney - @MIN_BrandSumPurchaseMoney) / (@MAX_BrandSumPurchaseMoney - @MIN_BrandSumPurchaseMoney) * 7 + 1,
+    1
+)
+WHERE SumPurchaseMoneyRank > @Total * 0.008392
+
+UPDATE U_StockRank
+SET BrandScore =
+    U_StockRank.BrandSumPurchaseMoneyScore * 0.340 +
+    U_StockRank.BrandSumPurchaseQuantityScore * 0.340 +
+    U_StockRank.BrandSumSaleCustomersScore * 0.178 +
+    U_StockRank.BrandSumPurchaseSuppliersScore * 0.099 +
+    U_StockRank.BrandModleCountScore * 0.043
+
 UPDATE U_StockRank
 SET TotalScore =
     InquiryFrequencyScore * 0.369 +
@@ -350,5 +523,7 @@ SET TotalScore =
     SumPurchaseQuantity * 0.0124 +
     PurchaseFrequencyScore * 0.0326 +
     SumSaleMoneyScore * 0.0303 +
-    SumPurchaseMoneyScore * 0.0167
---         + BrandScore * 0.0567
+    SumPurchaseMoneyScore * 0.0167+
+    BrandScore * 0.0567
+
+

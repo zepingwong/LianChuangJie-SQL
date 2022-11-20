@@ -20,64 +20,51 @@ FROM (
 
 SELECT
 --     COUNT(*)
-    T.Modle,
     T.Brand,
+
     ISNULL(BrandPurchase.SumMoney, 0) AS BrandSumPurchaseMoney, /*品牌总采购额*/
     ISNULL(BrandPurchase.SumQuantity, 0) AS BrandSumPurchaseQuantity, /*品牌总采购数量*/
     ISNULL(BrandPurchase.Suppliers, 0) AS BrandSumPurchaseSuppliers, /*品牌供应商数量*/
     ISNULL(BrandSale.Customers, 0) AS BrandSumSaleCustomers, /*销售客户数量*/
-    ISNULL(BrandModle.ModleCount, 0) AS BrandModleCount, /*所属型号数量*/
-    (
-        ISNULL(BrandPurchase.SumMoney, 0) * 0.34 +
-        ISNULL(BrandPurchase.SumQuantity, 0) * 0.34 +
-        ISNULL(BrandSale.Customers, 0) * 0.178 +
-        ISNULL(BrandPurchase.Suppliers, 0) * 0.099 +
-        ISNULL(BrandModle.ModleCount, 0) * 0.043
-    ) BrandScore
+    ISNULL(BrandModle.ModleCount, 0) AS BrandModleCount /*所属型号数量*/
 FROM (
-        /*近一年询报价业务所涉及的品牌、型号*/
+        /*近一年询报价业务所涉及的品牌*/
         SELECT
-            U_ICIN1.Modle,
             U_ICIN1.Brand
         FROM
             U_ICIN1
         LEFT JOIN T_ICIN ON U_ICIN1.DocEntry = T_ICIN.DocEntry
         WHERE DATEDIFF(MONTH ,T_ICIN.InquiryDate, GETDATE( )) < 12
         GROUP BY
-            U_ICIN1.Modle,
             U_ICIN1.Brand
 ) T
 LEFT JOIN (
-    SELECT
-        Brand,
-        SUM(Quantity * U_OIVL.PPriceAFVAT) AS SumMoney,
-        SUM(Quantity) AS SumQuantity,
-        COUNT(DISTINCT CardCode) AS Suppliers
-    FROM U_OIVL
-    WHERE BaseName = N'采购入库'
-    AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
-    GROUP BY Brand
-) BrandPurchase ON BrandPurchase.Brand = T.Brand
+	SELECT
+			T_OPOR1.U_Brand,
+			COUNT(DISTINCT T_OPOR.CardCode) AS Suppliers,
+			SUM(T_OPOR1.Quantity) AS SumQuantity,
+			SUM(T_OPOR1.Quantity * T_OPOR1.U_PriceAfVAT * ExchangeRate.Rate) AS SumMoney
+	FROM T_OPOR1
+	LEFT JOIN T_OPOR ON T_OPOR.DocEntry = T_OPOR1.DocEntry
+	LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = T_OPOR1.U_Currency
+	GROUP BY U_Brand
+) BrandPurchase ON BrandPurchase.U_Brand = T.Brand
 
 LEFT JOIN (
-    SELECT
-        Brand,
-        SUM(Quantity * U_OIVL.SPriceAFVAT * ExchangeRate.Rate) AS SumMoney,
-        SUM(Quantity) AS SumQuantity,
-        COUNT (DISTINCT CardCode) AS Customers
-    FROM U_OIVL
-    LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-    WHERE BaseName = N'交货单'
-    AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
-    GROUP BY Brand
-) BrandSale ON BrandSale.Brand = T.Brand
+	SELECT
+		T_ORDR1.U_Brand,
+		COUNT(DISTINCT T_ORDR.CardCode) AS Customers
+	FROM T_ORDR1
+	LEFT JOIN T_ORDR ON T_ORDR1.DocEntry = T_ORDR.DocEntry
+	GROUP BY U_Brand
+) BrandSale ON BrandSale.U_Brand = T.Brand
 LEFT JOIN (
     SELECT
         Brand,
-        COUNT(DISTINCT U_OIVL.ItemName) AS ModleCount
-    FROM U_OIVL
-    WHERE BaseName IN ( N'交货单', N'采购入库')
-    AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
+        COUNT(DISTINCT U_ICIN1.Modle) AS ModleCount
+    FROM U_ICIN1
+		LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
+    WHERE DATEDIFF(MONTH ,T_ICIN.CreateDate, GETDATE( )) < 12
     GROUP BY Brand
 ) BrandModle ON BrandModle.Brand = T.Brand
 

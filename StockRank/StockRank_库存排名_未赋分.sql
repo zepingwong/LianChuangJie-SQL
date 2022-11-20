@@ -82,8 +82,23 @@ SELECT
     InitRank.SumPurchaseMoney, /*11.近一年采购总额*/
     InitRank.SumPurchaseMoneyRank, /*近一年采购总额排名*/
     NULL AS SumPurchaseMoneyScore, /*采购总额得分*/
-    InitRank.BrandScore, /*12.品牌得分*/
-    ROW_NUMBER() OVER(ORDER BY InitRank.BrandScore DESC) as BrandScoreRank, /*品牌得分排名*/
+    /*12.品牌得分*/
+    ROW_NUMBER() OVER(ORDER BY BrandSumPurchaseMoney DESC) as BrandSumPurchaseMoneyRank, /*品牌采购额排名*/
+    NULL AS BrandSumPurchaseMoneyScore,
+    ISNULL(BrandSumPurchaseMoney, 0) AS BrandSumPurchaseMoney,
+    ROW_NUMBER() OVER(ORDER BY BrandSumPurchaseQuantity DESC) as BrandSumPurchaseQuantityRank, /*品牌采购数量排名*/
+    NULL AS BrandSumPurchaseQuantityScore,
+    ISNULL(BrandSumPurchaseQuantity, 0) AS BrandSumPurchaseQuantity,
+    ROW_NUMBER() OVER(ORDER BY BrandSumPurchaseSuppliers DESC) as BrandSumPurchaseSuppliersRank, /*品牌供应商数量排名*/
+    NULL AS BrandSumPurchaseSuppliersScore,
+    ISNULL(BrandSumPurchaseSuppliers, 0) AS BrandSumPurchaseSuppliers,
+    ROW_NUMBER() OVER(ORDER BY BrandSumSaleCustomers DESC) as BrandSumSaleCustomersRank, /*品牌客户数量排名*/
+    NULL AS BrandSumSaleCustomersScore,
+    ISNULL(BrandSumSaleCustomers, 0) AS BrandSumSaleCustomers,
+    ROW_NUMBER() OVER(ORDER BY BrandModleCount DESC) as BrandModleCountRank, /*品牌所属型号数量排名*/
+    NULL AS BrandModleCountScore,
+    ISNULL(BrandModleCount, 0) AS BrandModleCount,
+    NULL AS BrandScore, /*品牌*/
     NULL AS TotalScore /*总分*/
     INTO U_StockRank
 FROM (
@@ -165,25 +180,25 @@ FROM (
     ) AS DeliveryFrequency, /*近一年加权订单总数*/
 
     /*05.销售数量*/
-    ISNULL(_FirstDeliveryFrequency.Quantity, 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
-    ISNULL(_SecondDeliveryFrequency.Quantity, 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
-    ISNULL(_ThirdDeliveryFrequency.Quantity, 0) AS DeliveryQuantityThird, /*距今3个月销售数量*/
-    ISNULL(_ForthDeliveryFrequency.Quantity, 0) AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
+    ISNULL(_FirstOrderCustomers.SumQuantity, 0) AS DeliveryQuantityFirst, /*距今1个月销售数量*/
+    ISNULL(_SecondOrderCustomers.SumQuantity, 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
+    ISNULL(_ThirdOrderCustomers.SumQuantity, 0) AS DeliveryQuantityThird, /*距今3个月销售数量*/
+    ISNULL(_ForthOrderCustomers.SumQuantity, 0) AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
     (
-        ISNULL(_FirstDeliveryFrequency.Quantity, 0) * 0.1968 +
-        ISNULL(_SecondDeliveryFrequency.Quantity, 0) * 0.1217 +
-        ISNULL(_ThirdDeliveryFrequency.Quantity, 0) * 0.1217 +
-        ISNULL(_ForthDeliveryFrequency.Quantity, 0) * 0.0622
+        ISNULL(_FirstOrderCustomers.SumQuantity, 0) * 0.1968 +
+        ISNULL(_SecondOrderCustomers.SumQuantity, 0) * 0.1217 +
+        ISNULL(_ThirdOrderCustomers.SumQuantity, 0) * 0.1217 +
+        ISNULL(_ForthOrderCustomers.SumQuantity, 0) * 0.0622
     ) AS DeliveryQuantity, /*近一年加权销售总数*/
 
     /*06.平均利润率*/
     IIF(
         Purchase.SumMoney IS NOT NULL AND Purchase.SumMoney != 0,
         (
-            ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) + /*距今1个月销售总额*/
-            ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) + /*距今2个月销售总额*/
-            ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) + /*距今3个月销售总额*/
-            ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0) - /*距今4-12个销售总额*/
+            ISNULL(_FirstOrderCustomers.SumMoney, 0) + /*距今1个月销售总额*/
+            ISNULL(_SecondOrderCustomers.SumMoney, 0) + /*距今2个月销售总额*/
+            ISNULL(_ThirdOrderCustomers.SumMoney, 0) + /*距今3个月销售总额*/
+            ISNULL(_ForthOrderCustomers.SumMoney, 0) - /*距今4-12个销售总额*/
             ISNULL(Purchase.SumMoney, 0) /*近一年采购总额*/
         ) / Purchase.SumMoney,
         0
@@ -201,16 +216,16 @@ FROM (
     ISNULL(Purchase.PurchaseFrequency, 0) AS PurchaseFrequency, /*近一年采购频次总数*/
     ROW_NUMBER() OVER(ORDER BY Purchase.PurchaseFrequency DESC) as PurchaseFrequencyRank, /*近一年采购频次排名*/
 
-    /*10.销售额*/ /***************************汇率使用当前最近一次汇率**************************/
-    ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) AS SumSaleMoneyFirst, /*距今1个月销售总额*/
-    ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) AS SumSaleMoneySecond, /*距今2个月销售总额*/
-    ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) AS SumSaleMoneyThird, /*距今3个月销售总额*/
-    ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0) AS SumSaleMoneyForth, /*距今4-12个销售总额*/
+    /*10.销售额*/
+    ISNULL(_FirstOrderCustomers.SumMoney, 0) AS SumSaleMoneyFirst, /*距今1个月销售总额*/
+    ISNULL(_SecondOrderCustomers.SumMoney, 0) AS SumSaleMoneySecond, /*距今2个月销售总额*/
+    ISNULL(_ThirdOrderCustomers.SumMoney, 0) AS SumSaleMoneyThird, /*距今3个月销售总额*/
+    ISNULL(_ForthOrderCustomers.SumMoney, 0) AS SumSaleMoneyForth, /*距今4-12个销售总额*/
     (
-        ISNULL(_ForthDeliveryFrequency.SumSaleMoney, 0) * 0.0622 +
-        ISNULL(_ThirdDeliveryFrequency.SumSaleMoney, 0) * 0.1217 +
-        ISNULL(_SecondDeliveryFrequency.SumSaleMoney, 0) * 0.1217 +
-        ISNULL(_FirstDeliveryFrequency.SumSaleMoney, 0) * 0.1968
+        ISNULL(_FirstOrderCustomers.SumMoney, 0) * 0.0622 +
+        ISNULL(_SecondOrderCustomers.SumMoney, 0) * 0.1217 +
+        ISNULL(_ThirdOrderCustomers.SumMoney, 0) * 0.1217 +
+        ISNULL(_ForthOrderCustomers.SumMoney, 0) * 0.1968
     ) AS SumSaleMoney, /*近一年加权销售总额*/
 
     /*11.采购总额*/
@@ -222,14 +237,7 @@ FROM (
     ISNULL(BrandPurchase.SumQuantity, 0) AS BrandSumPurchaseQuantity, /*品牌总采购数量*/
     ISNULL(BrandPurchase.Suppliers, 0) AS BrandSumPurchaseSuppliers, /*品牌供应商数量*/
     ISNULL(BrandSale.Customers, 0) AS BrandSumSaleCustomers, /*销售客户数量*/
-    ISNULL(BrandModle.ModleCount, 0) AS BrandModleCount, /*所属型号数量*/
-    (
-        ISNULL(BrandPurchase.SumMoney, 0) * 0.34 +
-        ISNULL(BrandPurchase.SumQuantity, 0) * 0.34 +
-        ISNULL(BrandSale.Customers, 0) * 0.178 +
-        ISNULL(BrandPurchase.Suppliers, 0) * 0.099 +
-        ISNULL(BrandModle.ModleCount, 0) * 0.043
-    ) BrandScore
+    ISNULL(BrandModle.ModleCount, 0) AS BrandModleCount /*所属型号数量*/
 
     FROM (
         /*近一年询报价业务所涉及的品牌、型号*/
@@ -389,45 +397,97 @@ FROM (
 
     /*距今1个月订单客户数量*/
     LEFT JOIN (
-        SELECT COUNT(*) AS OrderCustomers, ItemName AS Modle, Brand
-        FROM U_OIVL
-        WHERE BaseName IN (N'采购入库', N'交货单')
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 0
+        SELECT
+            COUNT(*) AS OrderCustomers, /*订单客户数量*/
+            SUM(ORDR1.Quantity) AS SumQuantity, /*销售数量*/
+            SUM(ORDR1.SumMoney) AS SumMoney, /*销售金额*/
+            ORDR1.U_Brand,
+            ORDR1.U_ItemName
+        FROM (
+            SELECT
+                T_ORDR1.U_Brand,
+                T_ORDR1.U_ItemName,
+                T_ORDR1.Quantity,
+                (T_ORDR1.U_PriceAfVAT * ExchangeRate.Rate * T_ORDR1.Quantity) AS SumMoney
+            FROM T_ORDR1
+            LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_Currency
+            WHERE DATEDIFF( MONTH, T_ORDR.DocDate, GETDATE( ) ) = 0
+        ) ORDR1
         GROUP BY
-        U_OIVL.Brand,
-        U_OIVL.ItemName
-    ) _FirstOrderCustomers ON _FirstOrderCustomers.Brand = T.Brand AND _FirstOrderCustomers.Modle = T.Modle
+        ORDR1.U_Brand,
+        ORDR1.U_ItemName
+    ) _FirstOrderCustomers ON _FirstOrderCustomers.U_Brand = T.Brand AND _FirstOrderCustomers.U_ItemName = T.Modle
     /*距今2个月订单客户数量*/
     LEFT JOIN (
-        SELECT COUNT(*) AS OrderCustomers, ItemName AS Modle, Brand
-        FROM U_OIVL
-        WHERE BaseName IN (N'采购入库', N'交货单')
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 1
+        SELECT
+            COUNT(*) AS OrderCustomers, /*订单客户数量*/
+            SUM(ORDR1.Quantity) AS SumQuantity, /*销售数量*/
+            SUM(ORDR1.SumMoney) AS SumMoney, /*销售金额*/
+            ORDR1.U_Brand,
+            ORDR1.U_ItemName
+        FROM (
+            SELECT
+                T_ORDR1.U_Brand,
+                T_ORDR1.U_ItemName,
+                T_ORDR1.Quantity,
+                (T_ORDR1.U_PriceAfVAT * ExchangeRate.Rate * T_ORDR1.Quantity) AS SumMoney
+            FROM T_ORDR1
+            LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_Currency
+            WHERE DATEDIFF( MONTH, T_ORDR.DocDate, GETDATE( ) ) = 1
+        ) ORDR1
         GROUP BY
-        U_OIVL.Brand,
-        U_OIVL.ItemName
-    ) _SecondOrderCustomers ON _SecondOrderCustomers.Brand = T.Brand AND _SecondOrderCustomers.Modle = T.Modle
+        ORDR1.U_Brand,
+        ORDR1.U_ItemName
+    ) _SecondOrderCustomers ON _SecondOrderCustomers.U_Brand = T.Brand AND _SecondOrderCustomers.U_ItemName = T.Modle
     /*距今3个月订单客户数量*/
     LEFT JOIN (
-        SELECT COUNT(*) AS OrderCustomers, ItemName AS Modle, Brand
-        FROM U_OIVL
-        WHERE BaseName IN (N'采购入库', N'交货单')
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) = 2
+        SELECT
+            COUNT(*) AS OrderCustomers, /*订单客户数量*/
+            SUM(ORDR1.Quantity) AS SumQuantity, /*销售数量*/
+            SUM(ORDR1.SumMoney) AS SumMoney, /*销售金额*/
+            ORDR1.U_Brand,
+            ORDR1.U_ItemName
+        FROM (
+            SELECT
+                T_ORDR1.U_Brand,
+                T_ORDR1.U_ItemName,
+                T_ORDR1.Quantity,
+                (T_ORDR1.U_PriceAfVAT * ExchangeRate.Rate * T_ORDR1.Quantity) AS SumMoney
+            FROM T_ORDR1
+            LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_Currency
+            WHERE DATEDIFF( MONTH, T_ORDR.DocDate, GETDATE( ) ) = 2
+        ) ORDR1
         GROUP BY
-        U_OIVL.Brand,
-        U_OIVL.ItemName
-    ) _ThirdOrderCustomers ON _ThirdOrderCustomers.Brand = T.Brand AND _ThirdOrderCustomers.Modle = T.Modle
-    /*距今3个月订单客户数量*/
+        ORDR1.U_Brand,
+        ORDR1.U_ItemName
+    ) _ThirdOrderCustomers ON _ThirdOrderCustomers.U_Brand = T.Brand AND _ThirdOrderCustomers.U_ItemName = T.Modle
+    /*距今4-12个月订单客户数量*/
     LEFT JOIN (
-        SELECT COUNT(*) AS OrderCustomers, ItemName AS Modle, Brand
-        FROM U_OIVL
-        WHERE BaseName IN (N'采购入库', N'交货单')
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) > 2
-        AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
+        SELECT
+            COUNT(*) AS OrderCustomers, /*订单客户数量*/
+            SUM(ORDR1.Quantity) AS SumQuantity, /*销售数量*/
+            SUM(ORDR1.SumMoney) AS SumMoney, /*销售金额*/
+            ORDR1.U_Brand,
+            ORDR1.U_ItemName
+        FROM (
+            SELECT
+                T_ORDR1.U_Brand,
+                T_ORDR1.U_ItemName,
+                T_ORDR1.Quantity,
+                (T_ORDR1.U_PriceAfVAT * ExchangeRate.Rate * T_ORDR1.Quantity) AS SumMoney
+            FROM T_ORDR1
+            LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_Currency
+            WHERE DATEDIFF( MONTH, T_ORDR.DocDate, GETDATE( ) ) > 2
+            AND DATEDIFF( MONTH, T_ORDR.DocDate, GETDATE( ) ) < 12
+        ) ORDR1
         GROUP BY
-        U_OIVL.Brand,
-        U_OIVL.ItemName
-    ) _ForthOrderCustomers ON _ForthOrderCustomers.Brand = T.Brand AND _ForthOrderCustomers.Modle = T.Modle
+        ORDR1.U_Brand,
+        ORDR1.U_ItemName
+    ) _ForthOrderCustomers ON _ForthOrderCustomers.U_Brand = T.Brand AND _ForthOrderCustomers.U_ItemName = T.Modle
 
     /*距今1个月交货单频次*/
     LEFT JOIN (
@@ -526,59 +586,57 @@ FROM (
     /*采购数量、采购价格、采购频次*/
     LEFT JOIN (
         SELECT
-            OIVL.ItemName AS Modle,
-            OIVL.Brand,
-            SUM(OIVL.Quantity) AS SumQuantity, /*近一年采购总数*/
-            SUM(OIVL.Quantity * PPriceAFVAT) AS SumMoney, /*近一年采购总额*/
-            SUM(OIVL.Quantity * PPriceAFVAT) / SUM(Quantity) AS AveragePPriceAFVAT, /*近一年平均采购价格*/
-            COUNT(*) AS PurchaseFrequency /*近一年采购频次*/
+            OPOR1.U_Brand,
+            OPOR1.U_ItemName,
+            OPOR1.SumQuantity,
+            OPOR1.PurchaseFrequency,
+            OPOR1.AveragePPriceAFVAT,
+            OPOR1.SumMoney
         FROM (
             SELECT
-                U_OIVL.ItemName,
-                U_OIVL.Quantity,
-                U_OIVL.Brand,
-                U_OIVL.PPriceAFVAT
-            FROM U_OIVL
-            WHERE U_OIVL.BaseName = N'采购入库'
-            AND DATEDIFF( MONTH, DocDate, GETDATE( ) ) < 12
-        ) OIVL
-        GROUP BY
-            OIVL.Brand,
-            OIVL.ItemName
-    ) Purchase ON Purchase.Brand = T.Brand AND Purchase.Modle = T.Modle
+                T_OPOR1.U_Brand,
+                T_OPOR1.U_ItemName,
+                COUNT(*) AS PurchaseFrequency,
+                SUM(T_OPOR1.Quantity) AS SumQuantity,
+                SUM(T_OPOR1.Quantity * T_OPOR1.U_PriceAfVAT * ExchangeRate.Rate) AS SumMoney,
+                SUM(T_OPOR1.Quantity * T_OPOR1.U_PriceAfVAT * ExchangeRate.Rate) / SUM(T_OPOR1.Quantity) AS AveragePPriceAFVAT
+            FROM T_OPOR1
+            LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = T_OPOR1.U_Currency
+            LEFT JOIN T_OPOR ON T_OPOR.DocEntry = T_OPOR1.DocEntry
+            WHERE DATEDIFF( MONTH, T_OPOR.DocDate, GETDATE( ) ) < 12
+            GROUP BY
+                T_OPOR1.U_Brand,
+                T_OPOR1.U_ItemName
+        )OPOR1
+    ) Purchase ON Purchase.U_Brand = T.Brand AND Purchase.U_ItemName = T.Modle
 
     LEFT JOIN (
         SELECT
-            Brand,
-            SUM(Quantity * U_OIVL.PPriceAFVAT) AS SumMoney,
-            SUM(Quantity) AS SumQuantity,
-            COUNT(DISTINCT CardCode) AS Suppliers
-        FROM U_OIVL
-        WHERE BaseName = N'采购入库'
-        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
-        GROUP BY Brand
-    ) BrandPurchase ON BrandPurchase.Brand = T.Brand
+                T_OPOR1.U_Brand,
+                COUNT(DISTINCT T_OPOR.CardCode) AS Suppliers,
+                SUM(T_OPOR1.Quantity) AS SumQuantity,
+                SUM(T_OPOR1.Quantity * T_OPOR1.U_PriceAfVAT * ExchangeRate.Rate) AS SumMoney
+        FROM T_OPOR1
+        LEFT JOIN T_OPOR ON T_OPOR.DocEntry = T_OPOR1.DocEntry
+        LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = T_OPOR1.U_Currency
+        GROUP BY U_Brand
+    ) BrandPurchase ON BrandPurchase.U_Brand = T.Brand
 
     LEFT JOIN (
         SELECT
-            Brand,
-            SUM(Quantity * U_OIVL.SPriceAFVAT * ExchangeRate.Rate) AS SumMoney,
-            SUM(Quantity) AS SumQuantity,
-            COUNT (DISTINCT CardCode) AS Customers
-        FROM U_OIVL
-        LEFT JOIN #ExchangeRate ExchangeRate ON ExchangeRate.Currency = U_OIVL.SCurrency
-        WHERE BaseName = N'交货单'
-        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
-        GROUP BY Brand
-    ) BrandSale ON BrandSale.Brand = T.Brand
-
+            T_ORDR1.U_Brand,
+            COUNT(DISTINCT T_ORDR.CardCode) AS Customers
+        FROM T_ORDR1
+        LEFT JOIN T_ORDR ON T_ORDR1.DocEntry = T_ORDR.DocEntry
+        GROUP BY U_Brand
+    ) BrandSale ON BrandSale.U_Brand = T.Brand
     LEFT JOIN (
         SELECT
             Brand,
-            COUNT(DISTINCT U_OIVL.ItemName) AS ModleCount
-        FROM U_OIVL
-        WHERE BaseName IN ( N'交货单', N'采购入库')
-        AND DATEDIFF(MONTH ,U_OIVL.DocDate, GETDATE( )) < 12
+            COUNT(DISTINCT U_ICIN1.Modle) AS ModleCount
+        FROM U_ICIN1
+            LEFT JOIN T_ICIN ON T_ICIN.DocEntry = U_ICIN1.DocEntry
+        WHERE DATEDIFF(MONTH ,T_ICIN.CreateDate, GETDATE( )) < 12
         GROUP BY Brand
     ) BrandModle ON BrandModle.Brand = T.Brand
 ) InitRank
