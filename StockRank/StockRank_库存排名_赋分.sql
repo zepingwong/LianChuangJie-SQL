@@ -350,5 +350,5 @@ SET TotalScore =
     SumPurchaseQuantity * 0.0124 +
     PurchaseFrequencyScore * 0.0326 +
     SumSaleMoneyScore * 0.0303 +
-    SumPurchaseMoneyScore * 0.0167 +
-    BrandScore * 0.0567
+    SumPurchaseMoneyScore * 0.0167
+--         + BrandScore * 0.0567
