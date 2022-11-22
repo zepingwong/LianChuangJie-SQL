@@ -4,7 +4,7 @@ SELECT @Total = COUNT(*) FROM U_StockRank;
 /*采购总额赋分*/
 DECLARE @MIN_SumPurchaseMoney INT
 DECLARE @MAX_SumPurchaseMoney INT
-/*排名前0.1%*/
+/*排名前0.254%*/
 SELECT
     @MIN_SumPurchaseMoney = MIN(SumPurchaseMoney),
     @MAX_SumPurchaseMoney = MAX(SumPurchaseMoney)

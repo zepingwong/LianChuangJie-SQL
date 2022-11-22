@@ -12,18 +12,20 @@ FROM (SELECT T_ORTT.Currency,
       SELECT 'RMB'    AS 'Currency',
              1.000000 AS 'Rate') T
 
+
+/*04.销售订单频次*/
 SELECT T.Modle,
        T.Brand,
-       ISNULL(_FirstSaleOrder.SumQuantity, 0)  AS DeliveryQuantityFirst, /*距今1个月销售数量*/
-       ISNULL(_SecondSaleOrder.SumQuantity, 0) AS DeliveryQuantitySecond, /*距今2个月销售数量*/
-       ISNULL(_ThirdSaleOrder.SumQuantity, 0)  AS DeliveryQuantityThird, /*距今3个月销售数量*/
-       ISNULL(_ForthSaleOrder.SumQuantity, 0)  AS DeliveryQuantityForth, /*距今4-12个月销售数量*/
+       ISNULL(_FirstSaleOrder.DeliveryFrequency, 0)  AS DeliveryFrequencyFirst, /*距今1个月销售订单频次*/
+       ISNULL(_SecondSaleOrder.DeliveryFrequency, 0) AS DeliveryFrequencySecond, /*距今2个月销售订单频次*/
+       ISNULL(_ThirdSaleOrder.DeliveryFrequency, 0)  AS DeliveryFrequencyThird, /*距今3个月销售订单频次*/
+       ISNULL(_ForthSaleOrder.DeliveryFrequency, 0)  AS DeliveryFrequencyForth, /*距今4-12个月销售订单频次*/
        (
-                   ISNULL(_FirstSaleOrder.SumQuantity, 0) * 0.1968 +
-                   ISNULL(_SecondSaleOrder.SumQuantity, 0) * 0.1217 +
-                   ISNULL(_ThirdSaleOrder.SumQuantity, 0) * 0.1217 +
-                   ISNULL(_ForthSaleOrder.SumQuantity, 0) * 0.0622
-           )                                   AS DeliveryQuantity /*近一年加权销售总数*/
+                   ISNULL(_FirstSaleOrder.DeliveryFrequency, 0) * 0.1968 +
+                   ISNULL(_SecondSaleOrder.DeliveryFrequency, 0) * 0.1217 +
+                   ISNULL(_ThirdSaleOrder.DeliveryFrequency, 0) * 0.1217 +
+                   ISNULL(_ForthSaleOrder.DeliveryFrequency, 0) * 0.0622
+           )                                         AS DeliveryFrequency /*近一年加权订单总数*/
 FROM (
          /*近一年询报价业务所涉及的品牌、型号*/
          SELECT U_ICIN1.Modle,
