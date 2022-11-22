@@ -26,7 +26,7 @@ SELECT T.Modle,
                     ISNULL(_SecondEnquiry2.InquiryFrequency, 0) * 1.5) * 0.1217 +
                    (ISNULL(_FirstEnquiry1.InquiryFrequency, 0) * 0.7 +
                     ISNULL(_FirstEnquiry2.InquiryFrequency, 0) * 1.5) * 0.1968
-           )                                                     AS InquiryFrequency /*近一年加权询价频次*/
+           )                                                     AS InquiryFrequency /*近1年加权询价频次*/
 FROM (
          /*近一年询报价业务所涉及的品牌、型号*/
          SELECT U_ICIN1.Modle,
@@ -36,10 +36,10 @@ FROM (
          WHERE DATEDIFF(MONTH, T_ICIN.InquiryDate, GETDATE()) < 12
          GROUP BY U_ICIN1.Modle,
                   U_ICIN1.Brand) T
-/*贸易商类型客户距今一个月询价频次，询价客户数*/
+         /*贸易商类型客户距今1个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -49,10 +49,10 @@ FROM (
                     GROUP BY U_ICIN1.Brand,
                              U_ICIN1.Modle) _FirstEnquiry1
                    ON _FirstEnquiry1.Modle = T.Modle AND _FirstEnquiry1.Brand = T.Brand
-    /*终端类型客户距今一个月询价频次，询价客户数*/
+    /*终端类型客户距今1个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -64,10 +64,10 @@ FROM (
                    ON _FirstEnquiry2.Modle = T.Modle AND _FirstEnquiry2.Brand = T.Brand
 
 
-    /*贸易商类型客户距今两个月询价频次，询价客户数*/
+    /*贸易商类型客户距今2个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -77,10 +77,10 @@ FROM (
                     GROUP BY U_ICIN1.Brand,
                              U_ICIN1.Modle) _SecondEnquiry1
                    ON _SecondEnquiry1.Modle = T.Modle AND _SecondEnquiry1.Brand = T.Brand
-    /*终端类型客户距今两个月询价频次，询价客户数*/
+    /*终端类型客户距今2个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -91,10 +91,10 @@ FROM (
                              U_ICIN1.Modle) _SecondEnquiry2
                    ON _SecondEnquiry2.Modle = T.Modle AND _SecondEnquiry2.Brand = T.Brand
 
-    /*贸易商类型客户距今三个月询价频次，询价客户数*/
+    /*贸易商类型客户距今3个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -104,10 +104,10 @@ FROM (
                     GROUP BY U_ICIN1.Brand,
                              U_ICIN1.Modle) _ThirdEnquiry1
                    ON _ThirdEnquiry1.Modle = T.Modle AND _ThirdEnquiry1.Brand = T.Brand
-    /*终端类型客户距今三个月询价频次，询价客户数*/
+    /*终端类型客户距今3个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -118,10 +118,10 @@ FROM (
                              U_ICIN1.Modle) _ThirdEnquiry2
                    ON _ThirdEnquiry2.Modle = T.Modle AND _ThirdEnquiry2.Brand = T.Brand
 
-    /*贸易商类型客户距今4-12个月询价频次，询价客户数*/
+    /*贸易商类型客户距今4-12个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1
@@ -132,10 +132,10 @@ FROM (
                     GROUP BY U_ICIN1.Brand,
                              U_ICIN1.Modle) _ForthEnquiry1
                    ON _ForthEnquiry1.Modle = T.Modle AND _ForthEnquiry1.Brand = T.Brand
-    /*终端类型客户距今4-12个月询价频次，询价客户数*/
+    /*终端类型客户距今4-12个月询价频次、询价客户数、询价数量*/
          LEFT JOIN (SELECT U_ICIN1.Brand,
                            U_ICIN1.Modle,
-                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty,
+                           SUM(U_ICIN1.DemandQty)          AS InquiryDemandQty, /*询价数量*/
                            COUNT(*)                        AS InquiryFrequency, /*询价频次*/
                            COUNT(DISTINCT T_ICIN.CardCode) AS InquiryCustomers /*询价客户数*/
                     FROM U_ICIN1

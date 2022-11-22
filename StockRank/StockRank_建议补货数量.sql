@@ -8,28 +8,28 @@ LEFT JOIN (
     SELECT
         SUM(T_ORDR1.Quantity) AS SumQuantity, /*销售数量*/
         T_ORDR1.U_Brand,
-        T_ORDR1.U_ItemName
+        T_ORDR1.Dscription
     FROM T_ORDR1
     LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
     WHERE T_ORDR.U_GroupName IN (N'其它', N'一般贸易商', N'关系型贸易商')
     AND DATEDIFF(MONTH , T_ORDR.DocDate, GETDATE()) <= 2
     GROUP BY
         T_ORDR1.U_Brand,
-        T_ORDR1.U_ItemName
-) ORDR1 ON ORDR1.U_Brand = U_StockRank.Brand AND  ORDR1.U_ItemName = U_StockRank.Modle /*贸易商成交数量*/
+        T_ORDR1.Dscription
+) ORDR1 ON ORDR1.U_Brand = U_StockRank.Brand AND  ORDR1.Dscription = U_StockRank.Modle /*贸易商成交数量*/
 LEFT JOIN (
     SELECT
         SUM(T_ORDR1.Quantity) AS SumQuantity, /*销售数量*/
         T_ORDR1.U_Brand,
-        T_ORDR1.U_ItemName
+        T_ORDR1.Dscription
     FROM T_ORDR1
     LEFT JOIN T_ORDR ON T_ORDR.DocEntry = T_ORDR1.DocEntry
     WHERE T_ORDR.U_GroupName IN (N'其它', N'一般贸易商', N'关系型贸易商')
     AND DATEDIFF(MONTH , T_ORDR.DocDate, GETDATE()) <= 2
     GROUP BY
         T_ORDR1.U_Brand,
-        T_ORDR1.U_ItemName
-) ORDR2 ON ORDR2.U_Brand = U_StockRank.Brand AND  ORDR2.U_ItemName = U_StockRank.Modle /*终端客户成交数量*/
+        T_ORDR1.Dscription
+) ORDR2 ON ORDR2.U_Brand = U_StockRank.Brand AND  ORDR2.Dscription = U_StockRank.Modle /*终端客户成交数量*/
 LEFT JOIN (
     SELECT
         T_OBTN.ItemName,
@@ -52,10 +52,10 @@ LEFT JOIN (
 ) StockQuantity ON StockQuantity.ItemName = U_StockRank.Modle /*现有库存*/
 LEFT JOIN (
     SELECT
-        T_OPOR1.U_ItemName,
+        T_OPOR1.Dscription,
         T_OPOR1.U_Brand,
         SUM(T_OPOR1.OpenQty) AS OpenQty
     FROM T_OPOR1
     WHERE U_AreaType = 2 AND LineStatus ='O'
-    GROUP BY T_OPOR1.U_ItemName, T_OPOR1.U_Brand
-) OpenQuantity ON OpenQuantity.U_ItemName = U_StockRank.Modle AND OpenQuantity.U_Brand = U_StockRank.Brand /*在途库存*/
+    GROUP BY T_OPOR1.Dscription, T_OPOR1.U_Brand
+) OpenQuantity ON OpenQuantity.Dscription = U_StockRank.Modle AND OpenQuantity.U_Brand = U_StockRank.Brand /*在途库存*/
