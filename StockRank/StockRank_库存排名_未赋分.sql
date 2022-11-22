@@ -5,7 +5,7 @@ SELECT InitRank.Brand,
        InitRank.InquiryDemandQty1, /*近3个月贸易商类型客户询价数量*/
        InitRank.InquiryDemandQty2, /*近3个月终端类型客户询价数量*/
     /*01.询价频次*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.InquiryFrequency DESC)    as InquiryFrequencyRank, /*近1年加权询价频次排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.InquiryFrequency DESC)    AS InquiryFrequencyRank, /*近1年加权询价频次排名*/
        NULL                                                           AS InquiryFrequencyScore, /*近1年加权询价频次得分*/
        InitRank.InquiryFrequencyFirst1, /*第1个月贸易商类型客户询价频次*/
        InitRank.InquiryFrequencyFirst2, /*第1个月终端类型客户询价频次*/
@@ -21,7 +21,7 @@ SELECT InitRank.Brand,
        InitRank.InquiryFrequencyForth, /*第4-12个月加权询价频次*/
        InitRank.InquiryFrequency, /*近1年加权询价频次*/
     /*02.询价客户数*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.InquiryCustomers DESC)    as InquiryCustomersRank, /*加权询价客户数排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.InquiryCustomers DESC)    AS InquiryCustomersRank, /*加权询价客户数排名*/
        NULL                                                           AS InquiryCustomersScore, /*加权询价客户数得分*/
        InitRank.InquiryCustomersFirst1, /*第1个月贸易商类型询价客户数*/
        InitRank.InquiryCustomersFirst2, /*第1个月终端类型询价客户数*/
@@ -38,7 +38,7 @@ SELECT InitRank.Brand,
        InitRank.InquiryCustomers, /*近1年加权询价客户数*/
     /*03.销售订单客户数*/
        InitRank.OrderCustomers,
-       ROW_NUMBER() OVER (ORDER BY InitRank.OrderCustomers DESC)      as OrderCustomersRank, /*近1年加权销售订单客户数排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.OrderCustomers DESC)      AS OrderCustomersRank, /*近1年加权销售订单客户数排名*/
        NULL                                                           AS OrderCustomersScore, /*近1年加权销售订单客户数得分*/
        InitRank.OrderCustomersFirst, /*第1个月销售订单客户数*/
        InitRank.OrderCustomersSecond, /*第2个月销售订单客户数*/
@@ -46,14 +46,14 @@ SELECT InitRank.Brand,
        InitRank.OrderCustomersForth, /*第4-2个月销售订单客户数*/
        InitRank.DeliveryFrequency, /*近1年销售订单客户数*/
     /*04.销售订单频次*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.DeliveryFrequency DESC)   as DeliveryFrequencyRank, /*近1年加权销售订单频次排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.DeliveryFrequency DESC)   AS DeliveryFrequencyRank, /*近1年加权销售订单频次排名*/
        NULL                                                           AS DeliveryFrequencyScore, /*近1年加权销售订单频次得分*/
        InitRank.DeliveryFrequencyFirst, /*第1个月销售订单频次*/
        InitRank.DeliveryFrequencySecond, /*第2个月销售订单频次*/
        InitRank.DeliveryFrequencyThird, /*第3个月销售订单频次*/
        InitRank.DeliveryFrequencyForth, /*第4-12个月销售订单频次*/
     /*05.销售总数*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.DeliveryQuantity DESC)    as DeliveryQuantityRank, /*近1年加权销售总数排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.DeliveryQuantity DESC)    AS DeliveryQuantityRank, /*近1年加权销售总数排名*/
        NULL                                                           AS DeliveryQuantityScore, /*加权销售总数得分*/
        InitRank.DeliveryQuantity,
        InitRank.DeliveryQuantityFirst,
@@ -62,23 +62,23 @@ SELECT InitRank.Brand,
        InitRank.DeliveryQuantityForth,
        InitRank.AverageProfit,
     /*06.平均利润率*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.AverageProfit DESC)       as AverageProfitRank, /*近1年平均利润率排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.AverageProfit DESC)       AS AverageProfitRank, /*近1年平均利润率排名*/
        NULL                                                           AS AverageProfitScore, /*近1年平均利润率得分*/
        InitRank.AveragePPriceAFVAT, /*近1年平均利润率*/
     /*07.采购价格*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.AveragePPriceAFVAT DESC)  as AveragePPriceAFVATRank, /*近1年平均采购价格排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.AveragePPriceAFVAT DESC)  AS AveragePPriceAFVATRank, /*近1年平均采购价格排名*/
        NULL                                                           AS AveragePPriceAFVATScore, /*近1年平均采购价格得分*/
        InitRank.AveragePPriceAFVAT, /*近1年平均采购价格*/
     /*08.采购数量*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.SumPurchaseQuantity DESC) as SumPurchaseQuantityRank, /*近1年采购数量排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.SumPurchaseQuantity DESC) AS SumPurchaseQuantityRank, /*近1年采购数量排名*/
        NULL                                                           AS SumPurchaseQuantityScore, /*近1年采购数量得分*/
        InitRank.SumPurchaseQuantity, /*近1年采购数量*/
     /*09.采购频次*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.PurchaseFrequency DESC)   as PurchaseFrequencyRank, /*近1年采购频次排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.PurchaseFrequency DESC)   AS PurchaseFrequencyRank, /*近1年采购频次排名*/
        NULL                                                           AS PurchaseFrequencyScore, /*近1年采购总频次得分*/
        InitRank.PurchaseFrequency, /*近1年采购频次*/
     /*10.销售总额*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.SumSaleMoney DESC)        as SumSaleMoneyRank, /*近1年销售总额排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.SumSaleMoney DESC)        AS SumSaleMoneyRank, /*近1年销售总额排名*/
        NULL                                                           AS SumSaleMoneyScore, /*近1年销售总额得分*/
        InitRank.SumSaleMoney, /*近1年销售总额*/
        InitRank.SumSaleMoneyFirst, /*第1个月销售总额*/
@@ -86,27 +86,27 @@ SELECT InitRank.Brand,
        InitRank.SumSaleMoneyThird, /*第3个月销售总额*/
        InitRank.SumSaleMoneyForth, /*第4-12个月销售总额*/
     /*11.采购总额*/
-       ROW_NUMBER() OVER (ORDER BY InitRank.SumPurchaseMoney DESC)    as SumPurchaseMoneyRank, /*近1年采购总额排名*/
+       ROW_NUMBER() OVER (ORDER BY InitRank.SumPurchaseMoney DESC)    AS SumPurchaseMoneyRank, /*近1年采购总额排名*/
        NULL                                                           AS SumPurchaseMoneyScore, /*近1年采购总额得分*/
        InitRank.SumPurchaseMoney, /*近1年采购总额排名*/
     /*12.品牌得分*/
-       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseMoney DESC)        as BrandSumPurchaseMoneyRank, /*近1年品牌采购额排名*/
+       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseMoney DESC)        AS BrandSumPurchaseMoneyRank, /*近1年品牌采购额排名*/
        NULL                                                           AS BrandSumPurchaseMoneyScore, /*近1年品牌采购额得分*/
        ISNULL(BrandSumPurchaseMoney, 0)                               AS BrandSumPurchaseMoney, /*近1年品牌采购额*/
 
-       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseQuantity DESC)     as BrandSumPurchaseQuantityRank, /*近1年品牌采购数量排名*/
+       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseQuantity DESC)     AS BrandSumPurchaseQuantityRank, /*近1年品牌采购数量排名*/
        NULL                                                           AS BrandSumPurchaseQuantityScore, /*近1年品牌采购数量得分*/
        ISNULL(BrandSumPurchaseQuantity, 0)                            AS BrandSumPurchaseQuantity, /*近1年品牌采购数量*/
 
-       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseSuppliers DESC)    as BrandSumPurchaseSuppliersRank, /*近1年品牌供应商数量排名*/
+       ROW_NUMBER() OVER (ORDER BY BrandSumPurchaseSuppliers DESC)    AS BrandSumPurchaseSuppliersRank, /*近1年品牌供应商数量排名*/
        NULL                                                           AS BrandSumPurchaseSuppliersScore, /*近1年品牌供应商数量得分*/
        ISNULL(BrandSumPurchaseSuppliers, 0)                           AS BrandSumPurchaseSuppliers, /*近1年品牌供应商数量*/
 
-       ROW_NUMBER() OVER (ORDER BY BrandSumSaleCustomers DESC)        as BrandSumSaleCustomersRank, /*近1年品牌客户数量排名*/
+       ROW_NUMBER() OVER (ORDER BY BrandSumSaleCustomers DESC)        AS BrandSumSaleCustomersRank, /*近1年品牌客户数量排名*/
        NULL                                                           AS BrandSumSaleCustomersScore, /*近1年品牌客户数量得分*/
        ISNULL(BrandSumSaleCustomers, 0)                               AS BrandSumSaleCustomers, /*近1年品牌客户数量*/
 
-       ROW_NUMBER() OVER (ORDER BY BrandModleCount DESC)              as BrandModleCountRank, /*近1年采购订单品牌所属型号数量排名*/
+       ROW_NUMBER() OVER (ORDER BY BrandModleCount DESC)              AS BrandModleCountRank, /*近1年采购订单品牌所属型号数量排名*/
        NULL                                                           AS BrandModleCountScore, /*近1年采购订单品牌所属型号数量得分*/
        ISNULL(BrandModleCount, 0)                                     AS BrandModleCount, /*近1年采购订单品牌所属型号数量*/
        NULL                                                           AS BrandScore, /*品牌得分*/
