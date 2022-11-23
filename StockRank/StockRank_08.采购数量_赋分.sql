@@ -13,7 +13,7 @@ FROM U_StockRank
 WHERE SumPurchaseQuantityRank <= @Total * 0.00781
 
 UPDATE U_StockRank
-SET SumPurchaseQuantity = IIF(
+SET SumPurchaseQuantityScore = IIF(
             @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
             (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) *
             2 + 8, /*排名前0.781% 赋分8-10分*/
@@ -29,7 +29,7 @@ FROM U_StockRank
 WHERE SumPurchaseQuantityRank > @Total * 0.00781
 
 UPDATE U_StockRank
-SET SumPurchaseQuantity = IIF(
+SET SumPurchaseQuantityScore = IIF(
             @MAX_SumPurchaseQuantity != @MIN_SumPurchaseQuantity,
             (SumPurchaseQuantity - @MIN_SumPurchaseQuantity) / (@MAX_SumPurchaseQuantity - @MIN_SumPurchaseQuantity) *
             7 + 1, /*其余赋分1-8分*/

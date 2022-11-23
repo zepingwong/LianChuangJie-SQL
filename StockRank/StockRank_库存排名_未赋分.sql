@@ -60,11 +60,10 @@ SELECT InitRank.Brand,
        InitRank.DeliveryQuantitySecond,
        InitRank.DeliveryQuantityThird,
        InitRank.DeliveryQuantityForth,
-       InitRank.AverageProfit,
     /*06.平均利润率*/
        ROW_NUMBER() OVER (ORDER BY InitRank.AverageProfit DESC)       AS AverageProfitRank, /*近1年平均利润率排名*/
        NULL                                                           AS AverageProfitScore, /*近1年平均利润率得分*/
-       InitRank.AveragePPriceAFVAT, /*近1年平均利润率*/
+       InitRank.AverageProfit, /*近1年平均利润率*/
     /*07.采购价格*/
        ROW_NUMBER() OVER (ORDER BY InitRank.AveragePPriceAFVAT DESC)  AS AveragePPriceAFVATRank, /*近1年平均采购价格排名*/
        NULL                                                           AS AveragePPriceAFVATScore, /*近1年平均采购价格得分*/
