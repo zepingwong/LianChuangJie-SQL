@@ -6,7 +6,7 @@ SELECT InitRank.Brand,
        InitRank.InquiryDemandQty2, /*近3个月终端类型客户询价数量*/
     /*01.询价频次*/
        ROW_NUMBER() OVER (ORDER BY InitRank.InquiryFrequency DESC)    AS InquiryFrequencyRank, /*近1年加权询价频次排名*/
-       NULL                                                           AS InquiryFrequencyScore, /*近1年加权询价频次得分*/
+       CAST(NULL AS DECIMAL(19, 6))                                   AS InquiryFrequencyScore, /*近1年加权询价频次得分*/
        InitRank.InquiryFrequencyFirst1, /*第1个月贸易商类型客户询价频次*/
        InitRank.InquiryFrequencyFirst2, /*第1个月终端类型客户询价频次*/
        InitRank.InquiryFrequencySecond1, /*第2个月贸易商类型客户询价频次*/
